@@ -9,6 +9,9 @@ class Client
         struct sockaddr_in 	       	clientAddr;
         int                         socketFD;
         static socklen_t            emptySizeSocks; 
+		std::string					hostname;
+		std::string					nickname;
+		bool						isLog;
 
         Client();
         ~Client();

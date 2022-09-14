@@ -63,18 +63,7 @@ void Server::catchClient()
             this->ExitFailure("error when accepting connection");
     }
     else
-    {
-        
-             
-        std::cout << "New connection , socket fd is "<< tmpFD << ", ip is : " << inet_ntoa(client_addr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
-		//send new connection greeting message 
-		if( send(tmpFD, "Welcome !", 10, 0) != 10)  
-		{  
-			perror("send");  
-		}  
-				
-		puts("Welcome message sent successfully");  
-				
+    { 			
 		//add new socket to array of sockets 
 		Client * newClient = new Client;
 		newClient->socketFD = tmpFD;
@@ -85,8 +74,10 @@ void Server::catchClient()
 
 void Server::disconnectClient(int fd)
 {  
-	std::cout << "Host disconnected , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
-    this->connectedClient.erase(fd);  
+	if (this->connectedClient[fd]->isLog)
+		std::cout << "Host disconnected , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
+	delete this->connectedClient[fd];
+	this->connectedClient.erase(fd);
 	close(fd);
 }
 
@@ -152,13 +143,9 @@ void Server::messageRecieve(void)
                 //incoming message 
                 if ((valread = read( sd , buffer, 1024)) > 0)  
                 {  
-					if (std::string("quit").compare(buffer) == 0)
-					{
-						this->disconnectClient(it->first);
+					buffer[valread] = '\0';
+					if (receveMessage(it->first, buffer) == 1)
 						break;
-					}
-					else
-						std::cout << "Client " << it->first << " : " << buffer << std::endl;
                     //Close the socket and mark as 0 in list for reuse 
                 }  
                      
@@ -175,6 +162,34 @@ void Server::messageRecieve(void)
             }  
         }  
 	}
+}
+
+int Server::receveMessage(int fd, char * buffer)
+{
+	if (!this->connectedClient[fd]->isLog)
+	{
+		if (std::string(buffer).compare(this->password) == 0)
+		{
+			this->connectedClient[fd]->isLog = true;
+			std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
+			//send new connection greeting message 
+			if(send(fd, "Welcome !", 10, 0) != 10)  
+				perror("send"); 	
+			std::cout << "Welcome message sent successfully\n"; 
+		}
+		else
+			this->disconnectClient(fd);
+		return (1);
+	}
+
+	if (std::string("quit").compare(buffer) == 0)
+	{
+		this->disconnectClient(fd);
+		return (1);
+	}
+	else
+		std::cout << "Client " << fd << " : " << buffer << std::endl;
+	return (0);
 }
 
 

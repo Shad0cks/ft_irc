@@ -26,6 +26,7 @@ class Server
         void catchClient(void); 
 		void disconnectClient(int fd); 
         void messageRecieve(void);  
+		int receveMessage(int fd, char * buffer);
         
 };
 
