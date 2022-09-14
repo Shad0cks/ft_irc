@@ -6,7 +6,7 @@ Server::Server()
     int opt = 1;
     int flags;
     this->isRunning = true;
-    if((this->socketFD = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    if((this->socketFD = socket(AF_INET, SOCK_STREAM, 0)) == -1)
         this->ExitFailure("could not create TCP listening socket");
     
     if(setsockopt(this->socketFD, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
@@ -27,13 +27,6 @@ Server::Server()
 
     if (listen(this->socketFD, 3) < 0)
         this->ExitFailure("listen fail", 1);
-    
-    struct pollfd tmpPoll;
-
-    tmpPoll.fd = this->socketFD;    
-    tmpPoll.events = POLLIN; 
-    tmpPoll.revents = 0;
-    this->ufds.push_back(tmpPoll);
 }
 
 Server::~Server(void)
@@ -69,69 +62,117 @@ void Server::catchClient()
     }
     else
     {
-        Client client;
-        struct pollfd tmpPoll;
-        client.socketFD = tmpFD;
-        tmpPoll.fd = tmpFD;    
-        tmpPoll.events = POLLIN; 
-        tmpPoll.revents = 0;
-        std::cout << "Server : Client accepted : " << tmpPoll.fd  << std::endl;
-        this->connectedClient.push_back(client);
-        this->ufds.push_back(tmpPoll);
-        // char buffer[1024];
-        // int valread;
-        // while ((valread = recv(tmpFD, buffer, 1024, 0)) <= 0)
-        //     ;
-        // buffer[valread] = '\0';
-        // std::cout << buffer << std::endl;
+        
+             
+        std::cout << "New connection , socket fd is "<< tmpFD << ", ip is : " << inet_ntoa(client_addr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
+		//send new connection greeting message 
+		if( send(tmpFD, "Welcome !", 10, 0) != 10)  
+		{  
+			perror("send");  
+		}  
+				
+		puts("Welcome message sent successfully");  
+				
+		//add new socket to array of sockets 
+		Client * newClient = new Client;
+		newClient->socketFD = tmpFD;
+		newClient->clientAddr = client_addr;
+		this->connectedClient.insert(std::make_pair(tmpFD, newClient));
     }
+}
+
+void Server::disconnectClient(int fd)
+{  
+	std::cout << "Host disconnected , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
+    this->connectedClient.erase(fd);  
+	close(fd);
 }
 
 void Server::messageRecieve(void)
 {
-    int i, valread = 0;
-    char buffer[1024];
-    
-    while (this->isRunning)
-    {
-        
-        /* errors or timeout? */
-        if (poll(this->ufds.begin().base(), this->ufds.size(), 2000) < 0)    
-            this->ExitFailure("Error polling fd");
+    int new_socket , activity, i , valread , sd;  
+    int max_sd;  
+	char buffer[1024];
+    struct sockaddr_in address;  
+	int addrlen = sizeof(address);
+         
+    //set of socket descriptors 
+    fd_set readfds; 
 
-        for (i = 0; i < this->connectedClient.size() + 1; i++)
-        {
-            /* were there any events for this socket? */
-            if (this->ufds[i].revents == 0)
-                continue;
-            
-            if ((this->ufds[i].revents & POLLHUP) == POLLHUP) 
-            {
-				std::cout << "client disconnected\n";
-				break;
-			}
+	while (this->isRunning) 
+	{
 
-            /* is it our listening socket? */
-            if ((this->ufds[i].revents & POLLIN) == POLLIN) 
-            {
-                std::cout << "POLLIN CALL\n";
-
-				if (this->ufds[i].fd == this->socketFD) 
-                {
-				    this->catchClient();
-					break;
-				}
-
-				std::cout << "allo ? \n";
-                // std::cout << "New message : ";
-                // valread = recv(this->ufds[i].fd, buffer, 1024, 0);
-                // buffer[valread] = '\0';
-                // std::cout << buffer << std::endl;
-                // std::cout << "\n";
-			}
-            
-        }
-    }
+		//clear the socket set 
+        FD_ZERO(&readfds);  
+     
+        //add master socket to set 
+        FD_SET(this->socketFD, &readfds);  
+        max_sd = this->socketFD;  
+             
+        //add child sockets to set 
+        for (std::map<int, Client *>::iterator it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)  
+        {  
+            //socket descriptor 
+            sd = it->first;  
+            //if valid socket descriptor then add to read list 
+            if(sd > 0)  
+                FD_SET( sd , &readfds);  
+                 
+            //highest file descriptor number, need it for the select function 
+            if(sd > max_sd)  
+                max_sd = sd;  
+        }  
+		
+        //wait for an activity on one of the sockets , timeout is NULL , 
+        //so wait indefinitely 
+        activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);  
+       
+        if ((activity < 0) && (errno!=EINTR))  
+        {  
+            printf("select error");  
+        }  
+             
+        //If something happened on the master socket , 
+        //then its an incoming connection 
+        if (FD_ISSET(this->socketFD, &readfds))  
+        {  
+            this->catchClient();
+        }  
+		
+        //else its some IO operation on some other socket
+        for (std::map<int, Client *>::iterator it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)  
+        {  
+            sd = it->first;  
+                 
+            if (FD_ISSET( sd , &readfds))  
+            {  
+                //Check if it was for closing , and also read the 
+                //incoming message 
+                if ((valread = read( sd , buffer, 1024)) > 0)  
+                {  
+					if (buffer == std::string("quit"))
+					{
+						this->disconnectClient(it->first);
+						break;
+					}
+					else
+						std::cout << "Client " << it->first << " : " << buffer << std::endl;
+                    //Close the socket and mark as 0 in list for reuse 
+                }  
+                     
+                //Echo back the message that came in 
+                else 
+                {  
+                    //set the string terminating NULL byte on the end 
+                    //of the data read 
+                    buffer[valread] = '\0';  
+                    send(sd , buffer , strlen(buffer) , 0 );  
+                }  
+				valread = 0;
+				memset(buffer, 0, 1024);
+            }  
+        }  
+	}
 }
 
 

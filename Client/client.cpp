@@ -36,13 +36,16 @@ int main(int argc, char const *argv[])
     char                buffer[1024];
     int                 i;
     std::string         clientAswer;  
-    char txt[] = "Bonjour";  
-
-    while (clientAswer != "quit")
+	if ((i = read(socketClient, buffer, 1024)) > 0)
+	{
+		buffer[i] = '\0';
+		std::cout << "Server said : " << buffer << std::endl;
+	}
+	while (clientAswer != "quit")
     {
         std::cout << "Message : ";
-        std::cin >> clientAswer;
-        if (send(socketClient, txt, 9, 0) < 0)
+		std::getline(std::cin, clientAswer);
+        if (send(socketClient, clientAswer.c_str(), clientAswer.size(), 0) < 0)
         {
             perror("Send ERROR");
             exit(EXIT_FAILURE);

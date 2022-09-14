@@ -9,7 +9,7 @@ class Server
      
         struct sockaddr_in          serverAddr;
         int                         socketFD;
-        std::vector<Client>         connectedClient;
+       	std::map<int, Client *>       connectedClient;
         bool                        isRunning;
         std::vector<struct pollfd>  ufds;
 
@@ -21,7 +21,8 @@ class Server
         Server(void);
         ~Server(void);
         
-        void catchClient(void);  
+        void catchClient(void); 
+		void disconnectClient(int fd); 
         void messageRecieve(void);  
         
 };
