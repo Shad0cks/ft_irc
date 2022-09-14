@@ -177,5 +177,10 @@ void Server::messageRecieve(void)
 	}
 }
 
+void    Server::checkmessage(std::string message, Client *User)
+{
+    std::string commande;
 
-
+    commande.insert(message, strfcr(message, ' '));
+    std:: << "[" << commande << "]\n";
+}

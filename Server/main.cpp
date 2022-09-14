@@ -12,15 +12,12 @@ int checkport(std::string   port)
             return (0);
         }
     }
-    int i;
-
-    i = std::stoi(port);
+    int i = std::stoi(port);
     if (i < 1024 || i > 65535)
     {
         std::cout << "Allowed port : 1024 / 65535" << std::endl;
         return (0);
     }
-
     return(1);
 }
 
