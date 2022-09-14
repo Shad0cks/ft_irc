@@ -188,13 +188,21 @@ int Server::receveMessage(int fd, char * buffer)
 		return (1);
 	}
 	else
+    {
 		std::cout << "Client " << fd << " : " << buffer << std::endl;
+        checkmessage(buffer, this->connectedClient[fd]);
+    }
 	return (0);
 }
 
 void    Server::checkmessage(std::string message, Client *User)
 {
     std::string commande;
-    commande.insert(message, strfcr(message, ' '));
-    std:: << "[" << commande << "]\n";
+    std::size_t found = message.find(' ');
+    // std::cout << "[" << message.find(' ') << "]\n";
+    if (found != std::string::npos)
+        commande = message.substr(0, found);
+    else
+        commande = message;
+    // std::cout << "[" << commande << "]\n";
 }

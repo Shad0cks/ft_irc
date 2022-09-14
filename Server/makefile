@@ -1,8 +1,6 @@
-SOURCES_FILES	=	client/client.class.cpp \
-					server/server.class.cpp \
-					main.cpp
+SOURCES_FILES	=	$(shell find . -type f -name "*.cpp")
 
-HEADER			=	includes.hpp
+HEADER			=	$(shell find . -type f -name "*.hpp")
 
 SOURCES			=	$(addprefix ./, $(SOURCES_FILES))
 
