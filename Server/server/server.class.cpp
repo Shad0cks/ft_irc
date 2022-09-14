@@ -164,10 +164,37 @@ void Server::messageRecieve(void)
 	}
 }
 
+int Server::receveMessage(int fd, char * buffer)
+{
+	if (!this->connectedClient[fd]->isLog)
+	{
+		if (std::string(buffer).compare(this->password) == 0)
+		{
+			this->connectedClient[fd]->isLog = true;
+			std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
+			//send new connection greeting message 
+			if(send(fd, "Welcome !", 10, 0) != 10)  
+				perror("send"); 	
+			std::cout << "Welcome message sent successfully\n"; 
+		}
+		else
+			this->disconnectClient(fd);
+		return (1);
+	}
+
+	if (std::string("quit").compare(buffer) == 0)
+	{
+		this->disconnectClient(fd);
+		return (1);
+	}
+	else
+		std::cout << "Client " << fd << " : " << buffer << std::endl;
+	return (0);
+}
+
 void    Server::checkmessage(std::string message, Client *User)
 {
     std::string commande;
-
     commande.insert(message, strfcr(message, ' '));
     std:: << "[" << commande << "]\n";
 }
