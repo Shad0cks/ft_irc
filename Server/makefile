@@ -8,7 +8,7 @@ SOURCES			=	$(addprefix ./, $(SOURCES_FILES))
 
 OBJECTS			= 	$(SOURCES:.cpp=.o)
 
-NAME			=	a.out
+NAME			=	ft_irc
 
 CC				=	g++
 RM				=	rm -f

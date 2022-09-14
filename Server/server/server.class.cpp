@@ -1,12 +1,14 @@
 #include "../includes.hpp"
 #include <errno.h>
 
-Server::Server()
+Server::Server(std::string port, std::string pasword)
 {
     int opt = 1;
     int flags;
     this->isRunning = true;
-    if((this->socketFD = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    this->port = std::stoi(port);
+    this->password = pasword;
+    if((this->socketFD = socket(AF_INET, SOCK_STREAM, 0)) == 0)
         this->ExitFailure("could not create TCP listening socket");
     
     if(setsockopt(this->socketFD, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
