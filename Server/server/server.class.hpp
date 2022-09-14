@@ -12,13 +12,15 @@ class Server
         std::vector<Client>         connectedClient;
         bool                        isRunning;
         std::vector<struct pollfd>  ufds;
+        std::string                 password;
+        int                         port;
 
         void                    ExitFailure(std::string message);
         void                    ExitFailure(std::string message, int closedSocket);
     
     public:
 
-        Server(void);
+        Server(std::string port, std::string password);
         ~Server(void);
         
         void catchClient(void);  
