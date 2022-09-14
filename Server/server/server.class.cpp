@@ -152,7 +152,7 @@ void Server::messageRecieve(void)
                 //incoming message 
                 if ((valread = read( sd , buffer, 1024)) > 0)  
                 {  
-					if (buffer == std::string("quit"))
+					if (std::string("quit").compare(buffer) == 0)
 					{
 						this->disconnectClient(it->first);
 						break;
