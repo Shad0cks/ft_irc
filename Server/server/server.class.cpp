@@ -20,7 +20,7 @@ Server::Server(std::string port, std::string pasword)
     if(fcntl(this->socketFD, F_SETFL, flags | O_NONBLOCK))
         this->ExitFailure("could not set TCP listening socket to be non-blocking", 1);
 
-    this->serverAddr.sin_port = htons(PORT);
+    this->serverAddr.sin_port = htons(this->port);
     this->serverAddr.sin_family = AF_INET;
     this->serverAddr.sin_addr.s_addr = INADDR_ANY;
         

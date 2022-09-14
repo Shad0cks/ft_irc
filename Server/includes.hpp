@@ -12,7 +12,6 @@
 #include <map>
 #include <fcntl.h>
 #include <poll.h>
-#define PORT 30000
 
 #include "client/client.class.hpp"
 #include "server/server.class.hpp"
