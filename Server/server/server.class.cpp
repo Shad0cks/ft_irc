@@ -184,31 +184,59 @@ int Server::receveMessage(int fd, char * buffer)
 	return (0);
 }
 
+std::string Server::comp[4] =
+{
+        "NICK",
+        "USER",
+        "JOIN",
+        "QUIT"
+};
+
+void Harl::complain(std::string level)
+{
+    bool    check;
+
+    check = false;
+    void	(Server::*fonction[])( void ) = {
+            //
+	};
+    for(int i = 0; i < 4; i++)
+    {
+        void (Harl::*bugtoselect)( void ) = bugreportory[i];
+        if (commande == this->comp[i])
+        {
+            (this->*bugtoselect)();
+            check = true;
+        }
+    }
+    if (!check)
+        std::cout << "421 [NICKNAME] " << commande << " :Unknown command" << std::endl;
+}
 void    Server::switchcommande(std::string message, Client *User)
 {
     std::string commande;
     std::string arg;
     std::size_t found = message.find(' ');
+    bool    check;
 
+    check = false;
     commande = retcommande(message);
     arg = retcommandearg(message);
-    switch(commande)
+
+    void	(Server::*fonction[])( std::string arg) = {
+            //
+	};
+    for(int i = 0; i < 4; i++)
     {
-        case "NICK":
-            //
-            break;
-        case "USER":
-            //
-            break;
-        case "JOIN":
-            //
-            break;
-        case "QUIT"
-            //
-            break;
-        default:
-            std::cout << "421 [NICKNAME] " << commande << " :Unknown command" << std::endl;
+        void (Harl::*bugtoselect)( void ) = bugreportory[i];
+        if (commande == this->comp[i])
+        {
+            (this->*bugtoselect)(arg);
+            check = true;
+        }
     }
+    if (!check)
+        std::cout << "421 [NICKNAME] " << commande << " :Unknown command" << std::endl;
 }
 
 std::string Server::retcommande(std::string message)
