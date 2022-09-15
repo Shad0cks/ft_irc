@@ -16,6 +16,7 @@ class Server
         std::vector<struct pollfd>  ufds;
         std::string                 password;
         int                         port;
+        static                      std::string comp[4];
 
         void                    ExitFailure(std::string message);
         void                    ExitFailure(std::string message, int closedSocket);
