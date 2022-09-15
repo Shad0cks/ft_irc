@@ -6,10 +6,12 @@ class Client;
 class Server
 {
     private:
-     
+
+		typedef std::map<int, Client *>::iterator clientIt;
+
         struct sockaddr_in          serverAddr;
         int                         socketFD;
-       	std::map<int, Client *>       connectedClient;
+       	std::map<int, Client *>     connectedClient;
         bool                        isRunning;
         std::vector<struct pollfd>  ufds;
         std::string                 password;
