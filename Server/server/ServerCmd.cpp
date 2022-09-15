@@ -16,7 +16,8 @@ void Server::pass(std::string args, Client *User)
 
 void Server::nick(std::string args, Client *User)
 {
-	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " NICK :" + args);	
+	if (User->isLog)
+		this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " NICK :" + args);	
 	if (!User->setPass)
 		return ;
 	User->setNick = true;
