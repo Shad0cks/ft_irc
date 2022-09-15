@@ -199,7 +199,9 @@ std::string Server::comp[] =
         "USER",
         "JOIN",
         "QUIT",
-		"PASS"
+		"PASS",
+        "PING",
+        "PART"
 };
 
 void    Server::switchcommande(std::string message, Client *User)
@@ -219,8 +221,10 @@ void    Server::switchcommande(std::string message, Client *User)
 			&Server::join,
 			&Server::quit,
 			&Server::pass,
+            &Server::ping,
+            &Server::part
 	};
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 7; i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])
@@ -259,23 +263,38 @@ std::string Server::retcommandearg(std::string message)
     return (commande);
 }
 
-void Server::join (std::string args, Client *User)
-{
-    std::vector<std::string> splitargs;
-
-    tokenize(args, ',', splitargs);
-    for (size_t i = 0; i < splitargs.size(); i++)
-    {
-        std::cout << splitargs[i] << std::endl;
-    }   
-}
-
 void Server::clientLog(int fd)
 {
-	this->connectedClient[fd]->isLog = true;
-	std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
+    Client * tmp = this->connectedClient[fd];
+	tmp->isLog = true;
+	std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(tmp->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
 	//send new connection greeting message 
-	this->sendMessage(fd,  "001 " + std::string(this->connectedClient[fd]->getnickname() + " :Welcome to the irc Network, " + this->connectedClient[fd]->getnickname()));
-	this->sendMessage(fd, "221 " + this->connectedClient[fd]->getnickname() + " +");
+	this->sendMessage(fd,  "001 " + std::string(tmp->getnickname() + " :Welcome to the irc Network, " + tmp->getnickname()));
+	this->sendMessage(tmp->socketFD, "002 " + tmp->getnickname() + " :Your host is ft_irc, running version -1");
+    this->sendMessage(tmp->socketFD, "003 " + tmp->getnickname() + " :This server was created: way too long ago");
+    this->sendMessage(tmp->socketFD, "004 " + tmp->getnickname() + " " + inet_ntoa(tmp->clientAddr.sin_addr) + " ft_irc -1 io ovimpst");
+    this->sendMessage(fd, "221 " + tmp->getnickname() + " +");
 	std::cout << "Welcome message sent successfully\n"; 
+}
+
+void Server::createChannel(std::string name, Client * owner)
+{
+    channel * newChannel = new channel(name, owner);
+    this->channelup[name] = newChannel;
+    this->sendMessage(owner->socketFD, ":" + owner->getnickname() + "!" + owner->getnickname() + "@" + inet_ntoa(owner->clientAddr.sin_addr) + " JOIN " + name);	
+	this->sendMessage(owner->socketFD, "324 " + owner->getnickname() + " " + name + " +tn");
+    this->sendMessage(owner->socketFD, "353 " + owner->getnickname() + " " + name + " :@" + owner->getnickname());
+    this->sendMessage(owner->socketFD, "366 " + owner->getnickname() + " " + name + " :End of NAMES list");
+}
+
+void Server::joinChannel(std::string name, Client * user)
+{
+    this->channelup[name]->newuser(user);
+}
+
+void Server::leaveChannel(std::string name, Client * user)
+{
+    this->channelup[name]->part(user);
+    // if (this->channelup[name]->_connectedClient.size() == 0)
+    //     this->channelup.erase(name);
 }

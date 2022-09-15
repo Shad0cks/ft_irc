@@ -6,17 +6,21 @@
 class Client;
 
 class channel
-{
-    private:
+{        
+        
+    public:
+        typedef  std::map<int, Client *>::iterator    channelIt;
         std::map<int, Client *>     _connectedClient;
         std::map<int, Client *>     _connectedClientp;
         const std::string           _channelname;
-    public:
         channel(std::string channelname, Client *firstclient);
         virtual ~channel(void);
 
         void        newuser(Client *user);
+        void        part(Client *user);
         std::string const getchannelname(void)      {return(this->_channelname);}
+        bool isInChannel(Client * user);
+
 };
 
 #endif

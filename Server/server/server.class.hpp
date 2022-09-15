@@ -8,22 +8,27 @@ class Server
 {
     private:
 
-		typedef std::map<int, Client *>::iterator clientIt;
+
+        typedef std::map<int, Client *>::iterator   clientIt;
+        typedef std::map<std::string, channel *>::iterator    channelIt;
+        std::map<int, Client *>                 connectedClient;
+        std::map<std::string, channel *>        channelup;
 
         struct sockaddr_in          serverAddr;
         int                         socketFD;
-       	std::map<int, Client *>     connectedClient;
-        std::map<std::string, channel *>     channelup;
+       
         bool                        isRunning;
         std::vector<struct pollfd>  ufds;
         std::string                 password;
         int                         port;
         static                      std::string comp[];
 
+
         void                    ExitFailure(std::string message);
         void                    ExitFailure(std::string message, int closedSocket);
     
     public:
+
 
         Server(std::string port, std::string password);
         ~Server(void);
@@ -37,12 +42,19 @@ class Server
         std::string retcommande(std::string message);  // only return the commande in string
         std::string retcommandearg(std::string message);  // only return the arg after the command in string
 		void clientLog(int fd);
+        void createChannel(std::string name, Client * owner);
+        void joinChannel(std::string name, Client * user);
+        channel * isConnected(Client * user);
+        void leaveChannel(std::string name, Client * user);
+
 		//commands
 		void nick(std::string args, Client *User);
 		void user(std::string args, Client *User);
 		void join(std::string args, Client *User);
 		void quit(std::string args, Client *User);
 		void pass(std::string args, Client *User);
+        void ping(std::string args, Client *User);
+        void part(std::string args, Client *User);
 };
 
 #endif

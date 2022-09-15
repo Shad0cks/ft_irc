@@ -43,8 +43,52 @@ void Server::user(std::string args, Client *User)
 	std::cout << "user : " << args << std::endl;
 }
 
+void Server::join (std::string args, Client *User)
+{
+    std::vector<std::string> splitargs;
+
+    tokenize(args, ',', splitargs);
+    for (size_t i = 0; i < splitargs.size(); i++)
+    {
+        std::cout << splitargs[i] << std::endl;
+    }
+	for (std::vector<std::string>::iterator it = splitargs.begin(); it != splitargs.end(); it++)
+	{
+		if (this->channelup.count(*it) == 0)
+		{
+			//create channel
+			this->createChannel(*it, User);
+		}
+		else
+		{
+			//join channel
+			this->joinChannel(*it, User);
+		}
+	}
+}
+
+channel * Server::isConnected(Client * user)
+{
+	for (channelIt it = this->channelup.begin(); it != this->channelup.end(); it++)
+	{
+		// if (it->second->isInChannel(user))
+		// 	return ()
+	}
+	return NULL;
+}
 
 void Server::quit(std::string args, Client *User)
 {
 	this->disconnectClient(User->socketFD);
+}
+
+void Server::ping(std::string args, Client *User)
+{
+	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PONG ft_irc " + args);	
+}
+
+void Server::part(std::string args, Client *User)
+{
+	this->leaveChannel(args, User);
+	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PART " + args);	
 }
