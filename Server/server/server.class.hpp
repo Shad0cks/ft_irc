@@ -27,7 +27,7 @@ class Server
         
         void catchClient(void); 
 		void disconnectClient(int fd); 
-        void messageRecieve(void);
+        void runningServer(void);
         void switchcommande(std::string message, Client *User);
 		int receveMessage(int fd, char * buffer);
         std::string retcommande(std::string message);  // only return the commande in string
