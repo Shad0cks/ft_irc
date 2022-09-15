@@ -3,6 +3,7 @@
 
 #include "../includes.hpp"
 class Client;
+class channel;
 class Server
 {
     private:
@@ -17,7 +18,7 @@ class Server
         std::vector<struct pollfd>  ufds;
         std::string                 password;
         int                         port;
-        static                      std::string comp[4];
+        static                      std::string comp[];
 
         void                    ExitFailure(std::string message);
         void                    ExitFailure(std::string message, int closedSocket);
@@ -27,6 +28,7 @@ class Server
         Server(std::string port, std::string password);
         ~Server(void);
         
+		void sendMessage(int fd, std::string msg);
         void catchClient(void); 
 		void disconnectClient(int fd); 
         void runningServer(void);
@@ -34,10 +36,13 @@ class Server
 		int receveMessage(int fd, char * buffer);
         std::string retcommande(std::string message);  // only return the commande in string
         std::string retcommandearg(std::string message);  // only return the arg after the command in string
-
+		void clientLog(int fd);
 		//commands
 		void nick(std::string args, Client *User);
-        void join(std::string args, Client *User);
+		void user(std::string args, Client *User);
+		void join(std::string args, Client *User);
+		void quit(std::string args, Client *User);
+		void pass(std::string args, Client *User);
 };
 
 #endif

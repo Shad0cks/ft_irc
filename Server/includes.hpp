@@ -14,8 +14,8 @@
 #include <poll.h>
 
 #include "client/client.class.hpp"
-#include "server/server.class.hpp"
 #include "channel/channel.class.hpp"
+#include "server/server.class.hpp"
 
 int strfcr(std::string src, char c);
 void tokenize(std::string const &str, const char delim,std::vector<std::string> &out);

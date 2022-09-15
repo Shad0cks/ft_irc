@@ -11,3 +11,7 @@ void channel::newuser(Client *User)
     this->_connectedClient.insert(std::make_pair(User->socketFD, User));
     return;
 }
+
+channel::~channel(void)
+{
+}
