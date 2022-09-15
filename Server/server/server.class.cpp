@@ -94,7 +94,6 @@ void Server::messageRecieve(void)
 
 	while (this->isRunning) 
 	{
-
 		//clear the socket set 
         FD_ZERO(&readfds);  
      
@@ -177,8 +176,6 @@ int Server::receveMessage(int fd, char * buffer)
 				perror("send"); 	
 			std::cout << "Welcome message sent successfully\n"; 
 		}
-		else
-			this->disconnectClient(fd);
 		return (1);
 	}
 
