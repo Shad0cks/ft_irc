@@ -155,41 +155,34 @@ void Server::runningServer(void)
 	}
 }
 
+void Server::sendMessage(int fd, std::string msg)
+{
+	if (send(fd, msg.c_str(), msg.length(), 0) != msg.length())
+		perror("send"); 	
+}
+
 int Server::receveMessage(int fd, char * buffer)
 {
 	if (!this->connectedClient[fd]->isLog)
 	{
-		if (std::string(retcommandearg(buffer)).compare(this->password) == 0 && std::string(retcommande(buffer)).compare("PASS") == 0)
-		{
-			this->connectedClient[fd]->isLog = true;
-			std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
-			//send new connection greeting message 
-			if(send(fd,	"<client> :Welcome to the <networkname> Network, <nick>[!<user>@<host>]", 71, 0) != 71)  
-				perror("error welcome message"); 	
-			std::cout << "Welcome message sent successfully\n"; 
-		}
-		return (1);
+		std::string cmd = retcommande(std::string(buffer));
+		if (cmd == "USER" || cmd == "NICK" || cmd == "PASS")
+			switchcommande(buffer, this->connectedClient[fd]);
+		return (0);
 	}
 
-	if (std::string("quit").compare(buffer) == 0)
-	{
-		this->disconnectClient(fd);
-		return (1);
-	}
-	else
-    {
-		std::cout << "Client " << fd << " : " << buffer << std::endl;
-        switchcommande(buffer, this->connectedClient[fd]);
-    }
+	switchcommande(buffer, this->connectedClient[fd]);
+	//std::cout << this->connectedClient[fd] << " : " << buffer << std::endl;
 	return (0);
 }
 
-std::string Server::comp[4] =
+std::string Server::comp[] =
 {
         "NICK",
         "USER",
         "JOIN",
-        "QUIT"
+        "QUIT",
+		"PASS"
 };
 
 void    Server::switchcommande(std::string message, Client *User)
@@ -204,9 +197,13 @@ void    Server::switchcommande(std::string message, Client *User)
     arg = retcommandearg(message);
 
     void	(Server::*fonction[])(std::string args, Client *User) = {
-            &Server::nick
+            &Server::nick,
+			&Server::user,
+			&Server::join,
+			&Server::quit,
+			&Server::pass,
 	};
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < 5; i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])
@@ -243,4 +240,13 @@ std::string Server::retcommandearg(std::string message)
         commande = message;
     // std::cout << "[" << commande << "]\n";
     return (commande);
+}
+
+void Server::clientLog(int fd)
+{
+	this->connectedClient[fd]->isLog = true;
+	std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
+	//send new connection greeting message 
+	this->sendMessage(fd, "<client> :Welcome to the <networkname> Network, <nick>[!<user>@<host>]");
+	std::cout << "Welcome message sent successfully\n"; 
 }

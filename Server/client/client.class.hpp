@@ -6,14 +6,17 @@
 class Client
 {   
     private:
-        std::string                 _username;
-        std::string                 _nickname;
+        std::string                 	_username;
+        std::string                 	_nickname;
 
     public:
-        struct sockaddr_in 	       	clientAddr;
+        struct sockaddr_in 	       		clientAddr;
         int                             socketFD;
         static socklen_t                emptySizeSocks;
-	bool			        isLog;
+		bool			        		isLog;
+		bool			        		setNick;
+		bool			        		setUser;
+		bool							setPass;
 
         void    setnickname(std::string name)   {this->_nickname = name;}
         void    setusername(std::string name)   {this->_username = name;}
