@@ -244,3 +244,14 @@ std::string Server::retcommandearg(std::string message)
     // std::cout << "[" << commande << "]\n";
     return (commande);
 }
+
+void Server::join (std::string args, Client *User)
+{
+    std::vector<std::string> splitargs;
+
+    tokenize(args, ',', splitargs);
+    for (size_t i = 0; i < splitargs.size(); i++)
+    {
+        std::cout << splitargs[i] << std::endl;
+    }   
+}

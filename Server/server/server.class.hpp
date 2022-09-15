@@ -12,6 +12,7 @@ class Server
         struct sockaddr_in          serverAddr;
         int                         socketFD;
        	std::map<int, Client *>     connectedClient;
+        std::map<std::string, channel *>     channelup;
         bool                        isRunning;
         std::vector<struct pollfd>  ufds;
         std::string                 password;
@@ -36,6 +37,7 @@ class Server
 
 		//commands
 		void nick(std::string args, Client *User);
+        void join(std::string args, Client *User);
 };
 
 #endif

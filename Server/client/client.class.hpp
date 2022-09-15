@@ -10,7 +10,7 @@ class Client
         std::string                 _nickname;
 
     public:
-        struct sockaddr_in 	       	clientAddr;
+        struct sockaddr_in 	       	    clientAddr;
         int                             socketFD;
         static socklen_t                emptySizeSocks;
 	bool			        isLog;
