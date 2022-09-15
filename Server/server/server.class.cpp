@@ -159,7 +159,7 @@ int Server::receveMessage(int fd, char * buffer)
 {
 	if (!this->connectedClient[fd]->isLog)
 	{
-		if (std::string(buffer).compare(this->password) == 0)
+		if (std::string(retcommandearg(buffer)).compare(this->password) == 0 && std::string(retcommande(buffer)).compare("PASS") == 0)
 		{
 			this->connectedClient[fd]->isLog = true;
 			std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
@@ -187,11 +187,35 @@ int Server::receveMessage(int fd, char * buffer)
 void    Server::checkmessage(std::string message, Client *User)
 {
     std::string commande;
+    std::string arg;
+    std::size_t found = message.find(' ');
+
+    commande = retcommande(message);
+    arg = retcommandearg(message);
+}
+
+std::string Server::retcommande(std::string message)
+{
+    std::string commande;
     std::size_t found = message.find(' ');
     // std::cout << "[" << message.find(' ') << "]\n";
     if (found != std::string::npos)
-        commande = message.substr(0, found);
+        commande = message.substr(0, found);            //Only return the command whitout the arg
     else
         commande = message;
     // std::cout << "[" << commande << "]\n";
+    return (commande);
+}
+
+std::string Server::retcommandearg(std::string message)
+{
+    std::string commande;
+    std::size_t found = message.find(' ');
+    // std::cout << "[" << message.find(' ') << "]\n";
+    if (found != std::string::npos)
+        commande = message.substr(found + 1, message.size());  //Only return argument after the commande
+    else
+        commande = message;
+    // std::cout << "[" << commande << "]\n";
+    return (commande);
 }
