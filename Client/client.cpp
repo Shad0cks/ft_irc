@@ -46,11 +46,11 @@ int main(int argc, char const *argv[])
             perror("Send ERROR");
             exit(EXIT_FAILURE);
         }
-		// if ((i = read(socketClient, buffer, 1024)) > 0)
-		// {
-		// 	buffer[i] = '\0';
-		// 	std::cout << "Server said : " << buffer << std::endl;
-		// }
+		if (clientAswer == "USER aled" && (i = read(socketClient, buffer, 1024)) > 0)
+		{
+			buffer[i] = '\0';
+			std::cout << "Server said : " << buffer << std::endl;
+		}
     }
 
     close(socketClient);   

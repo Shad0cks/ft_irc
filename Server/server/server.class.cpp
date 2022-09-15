@@ -1,6 +1,19 @@
 #include "../includes.hpp"
 #include <errno.h>
 
+
+std::string counter_nl(std::string str)
+{ 
+	std::size_t found = str.find(13);
+	std::string commande;
+
+    if (found != std::string::npos)
+        commande = str.substr(0, found);
+	else
+        commande = str;
+	return commande;
+}
+
 Server::Server(std::string port, std::string pasword)
 {
     int opt = 1;
@@ -74,6 +87,7 @@ void Server::catchClient()
 
 void Server::disconnectClient(int fd)
 {  
+	
 	if (this->connectedClient[fd]->isLog)
 		std::cout << "Host disconnected , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
 	delete this->connectedClient[fd];
@@ -157,23 +171,26 @@ void Server::runningServer(void)
 
 void Server::sendMessage(int fd, std::string msg)
 {
-	if (send(fd, msg.c_str(), msg.length(), 0) != msg.length())
+	std::string nl = msg + "\n";
+	std::cout << nl << std::endl;
+	if (send(fd, nl.c_str(), nl.length(), 0) != nl.length())
 		perror("send"); 	
 }
 
 int Server::receveMessage(int fd, char * buffer)
 {
+	std::string message = counter_nl(buffer);
 	if (!this->connectedClient[fd]->isLog)
 	{
-		std::string cmd = retcommande(std::string(buffer));
+		std::string cmd = retcommande(message);
 		if (cmd == "USER" || cmd == "NICK" || cmd == "PASS")
-			switchcommande(buffer, this->connectedClient[fd]);
+			switchcommande(message, this->connectedClient[fd]);
 		return (0);
 	}
 
-	switchcommande(buffer, this->connectedClient[fd]);
+	switchcommande(message, this->connectedClient[fd]);
 	//std::cout << this->connectedClient[fd] << " : " << buffer << std::endl;
-	return (0);
+	return (1);
 }
 
 std::string Server::comp[] =
@@ -247,6 +264,7 @@ void Server::clientLog(int fd)
 	this->connectedClient[fd]->isLog = true;
 	std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
 	//send new connection greeting message 
-	this->sendMessage(fd, "<client> :Welcome to the <networkname> Network, <nick>[!<user>@<host>]");
+	this->sendMessage(fd,  "001 " + std::string(this->connectedClient[fd]->getnickname() + " :Welcome to the irc Network, " + this->connectedClient[fd]->getnickname()));
+	this->sendMessage(fd, "221 " + this->connectedClient[fd]->getnickname() + " +");
 	std::cout << "Welcome message sent successfully\n"; 
 }
