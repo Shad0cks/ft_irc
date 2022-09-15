@@ -18,7 +18,7 @@ class Client
         void    setnickname(std::string name)   {this->_nickname = name;}
         void    setusername(std::string name)   {this->_username = name;}
 
-        std::string    getnickname(std::string name)   {return(this->_nickname);}
+        std::string    getnickname(void)   {return(this->_nickname);}
 
         Client();
         ~Client();
