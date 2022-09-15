@@ -28,7 +28,8 @@ class Server
         void messageRecieve(void);
         void checkmessage(std::string message, Client *User);
 		int receveMessage(int fd, char * buffer);
-        
+        std::string retcommande(std::string message);  // only return the commande in string
+        std::string retcommandearg(std::string message);  // only return the arg after the command in string
 };
 
 #endif
