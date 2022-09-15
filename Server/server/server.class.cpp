@@ -132,7 +132,7 @@ void Server::runningServer(void)
             {  
                 //Check if it was for closing , and also read the 
                 //incoming message 
-                if ((valread = read( sd , buffer, 1024)) > 0)  
+                if ((valread = read(sd , buffer, 1024)) > 0)  
                 {  
 					buffer[valread] = '\0';
 					if (receveMessage(it->first, buffer) == 1)
