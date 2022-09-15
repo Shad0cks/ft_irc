@@ -187,12 +187,12 @@ int Server::receveMessage(int fd, char * buffer)
 	else
     {
 		std::cout << "Client " << fd << " : " << buffer << std::endl;
-        checkmessage(buffer, this->connectedClient[fd]);
+        switchcommande(buffer, this->connectedClient[fd]);
     }
 	return (0);
 }
 
-void    Server::checkmessage(std::string message, Client *User)
+void    Server::switchcommande(std::string message, Client *User)
 {
     std::string commande;
     std::string arg;
@@ -200,6 +200,23 @@ void    Server::checkmessage(std::string message, Client *User)
 
     commande = retcommande(message);
     arg = retcommandearg(message);
+    switch(commande)
+    {
+        case "NICK":
+            //
+            break;
+        case "USER":
+            //
+            break;
+        case "JOIN":
+            //
+            break;
+        case "QUIT"
+            //
+            break;
+        default:
+            std::cout << "421 [NICKNAME] " << commande << " :Unknown command" << std::endl;
+    }
 }
 
 std::string Server::retcommande(std::string message)
