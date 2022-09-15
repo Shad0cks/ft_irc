@@ -192,7 +192,6 @@ std::string Server::comp[4] =
         "QUIT"
 };
 
-
 void    Server::switchcommande(std::string message, Client *User)
 {
     std::string commande;
