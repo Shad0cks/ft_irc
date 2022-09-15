@@ -259,6 +259,17 @@ std::string Server::retcommandearg(std::string message)
     return (commande);
 }
 
+void Server::join (std::string args, Client *User)
+{
+    std::vector<std::string> splitargs;
+
+    tokenize(args, ',', splitargs);
+    for (size_t i = 0; i < splitargs.size(); i++)
+    {
+        std::cout << splitargs[i] << std::endl;
+    }   
+}
+
 void Server::clientLog(int fd)
 {
 	this->connectedClient[fd]->isLog = true;

@@ -3,6 +3,7 @@
 
 #include "../includes.hpp"
 class Client;
+class channel;
 class Server
 {
     private:
@@ -12,6 +13,7 @@ class Server
         struct sockaddr_in          serverAddr;
         int                         socketFD;
        	std::map<int, Client *>     connectedClient;
+        std::map<std::string, channel *>     channelup;
         bool                        isRunning;
         std::vector<struct pollfd>  ufds;
         std::string                 password;

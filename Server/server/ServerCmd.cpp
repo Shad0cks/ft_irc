@@ -42,10 +42,6 @@ void Server::user(std::string args, Client *User)
 	std::cout << "user : " << args << std::endl;
 }
 
-void Server::join(std::string args, Client *User)
-{
-	
-}
 
 void Server::quit(std::string args, Client *User)
 {
