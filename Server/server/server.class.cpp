@@ -81,13 +81,10 @@ void Server::disconnectClient(int fd)
 	close(fd);
 }
 
-void Server::messageRecieve(void)
+void Server::runningServer(void)
 {
-    int new_socket , activity, i , valread , sd;  
-    int max_sd;  
+    int new_socket , activity, valread , sd, max_sd;  
 	char buffer[1024];
-    struct sockaddr_in address;  
-	int addrlen = sizeof(address);
          
     //set of socket descriptors 
     fd_set readfds; 
@@ -102,41 +99,36 @@ void Server::messageRecieve(void)
         max_sd = this->socketFD;  
              
         //add child sockets to set 
-        for (std::map<int, Client *>::iterator it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)  
+        for (clientIt it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)  
         {  
             //socket descriptor 
             sd = it->first;  
             //if valid socket descriptor then add to read list 
             if(sd > 0)  
-                FD_SET( sd , &readfds);  
+                FD_SET(sd, &readfds);  
                  
             //highest file descriptor number, need it for the select function 
             if(sd > max_sd)  
                 max_sd = sd;  
         }  
-		
         //wait for an activity on one of the sockets , timeout is NULL , 
         //so wait indefinitely 
-        activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);  
+        activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);  
        
-        if ((activity < 0) && (errno!=EINTR))  
-        {  
-            printf("select error");  
-        }  
+        if ((activity < 0) && (errno != EINTR))  
+            printf("select error");
              
         //If something happened on the master socket , 
         //then its an incoming connection 
         if (FD_ISSET(this->socketFD, &readfds))  
-        {  
             this->catchClient();
-        }  
 		
         //else its some IO operation on some other socket
-        for (std::map<int, Client *>::iterator it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)  
+        for (clientIt it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)  
         {  
             sd = it->first;  
                  
-            if (FD_ISSET( sd , &readfds))  
+            if (FD_ISSET(sd, &readfds))  
             {  
                 //Check if it was for closing , and also read the 
                 //incoming message 
@@ -172,8 +164,8 @@ int Server::receveMessage(int fd, char * buffer)
 			this->connectedClient[fd]->isLog = true;
 			std::cout << "New connection , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port) << std::endl; 
 			//send new connection greeting message 
-			if(send(fd, "Welcome !", 10, 0) != 10)  
-				perror("send"); 	
+			if(send(fd,	"<client> :Welcome to the <networkname> Network, <nick>[!<user>@<host>]", 71, 0) != 71)  
+				perror("error welcome message"); 	
 			std::cout << "Welcome message sent successfully\n"; 
 		}
 		return (1);

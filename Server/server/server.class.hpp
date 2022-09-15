@@ -6,10 +6,12 @@ class Client;
 class Server
 {
     private:
-     
+
+		typedef std::map<int, Client *>::iterator clientIt;
+
         struct sockaddr_in          serverAddr;
         int                         socketFD;
-       	std::map<int, Client *>       connectedClient;
+       	std::map<int, Client *>     connectedClient;
         bool                        isRunning;
         std::vector<struct pollfd>  ufds;
         std::string                 password;
@@ -25,7 +27,7 @@ class Server
         
         void catchClient(void); 
 		void disconnectClient(int fd); 
-        void messageRecieve(void);
+        void runningServer(void);
         void checkmessage(std::string message, Client *User);
 		int receveMessage(int fd, char * buffer);
         

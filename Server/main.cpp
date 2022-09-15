@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
         {
             Server server(argv[1], argv[2]);
 
-            server.messageRecieve();
+            server.runningServer();
             return 0;
         }
     }
