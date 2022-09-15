@@ -25,7 +25,8 @@ class Server
         
         void catchClient(void); 
 		void disconnectClient(int fd); 
-        void messageRecieve(void);  
+        void messageRecieve(void);
+        void checkmessage(std::string message, Client *User);
 		int receveMessage(int fd, char * buffer);
         
 };

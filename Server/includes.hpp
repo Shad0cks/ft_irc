@@ -16,4 +16,6 @@
 #include "client/client.class.hpp"
 #include "server/server.class.hpp"
 
+int strfcr(std::string src, char c);
+
 #endif
