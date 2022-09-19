@@ -227,7 +227,7 @@ void    Server::switchcommande(std::string message, Client *User)
             &Server::part,
 			&Server::privmsg,
 	};
-    for(int i = 0; i < 8; i++)
+    for(int i = 0; i < comp->size(); i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])
