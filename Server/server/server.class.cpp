@@ -172,7 +172,7 @@ void Server::runningServer(void)
 void Server::sendMessage(int fd, std::string msg)
 {
 	std::string nl = msg + "\n";
-	std::cout << nl << std::endl;
+	std::cout << nl;
 	if (send(fd, nl.c_str(), nl.length(), 0) != nl.length())
 		perror("send"); 	
 }
@@ -201,11 +201,13 @@ std::string Server::comp[] =
         "QUIT",
 		"PASS",
         "PING",
-        "PART"
+        "PART",
+		"PRIVMSG"
 };
 
 void    Server::switchcommande(std::string message, Client *User)
 {
+	std::cout << "COMMAND  : " << message << std::endl;
     std::string commande;
     std::string arg;
     std::size_t found = message.find(' ');
@@ -222,9 +224,10 @@ void    Server::switchcommande(std::string message, Client *User)
 			&Server::quit,
 			&Server::pass,
             &Server::ping,
-            &Server::part
+            &Server::part,
+			&Server::privmsg,
 	};
-    for(int i = 0; i < 7; i++)
+    for(int i = 0; i < 8; i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])
@@ -274,7 +277,7 @@ void Server::clientLog(int fd)
     this->sendMessage(tmp->socketFD, "003 " + tmp->getnickname() + " :This server was created: way too long ago");
     this->sendMessage(tmp->socketFD, "004 " + tmp->getnickname() + " " + inet_ntoa(tmp->clientAddr.sin_addr) + " ft_irc -1 io ovimpst");
     this->sendMessage(fd, "221 " + tmp->getnickname() + " +");
-	std::cout << "Welcome message sent successfully\n"; 
+	std::cout << "Welcome message sent successfully\n";
 }
 
 void Server::createChannel(std::string name, Client * owner)
@@ -290,11 +293,24 @@ void Server::createChannel(std::string name, Client * owner)
 void Server::joinChannel(std::string name, Client * user)
 {
     this->channelup[name]->newuser(user);
+	this->sendMessage(user->socketFD, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " JOIN " + name);	
+	this->sendMessage(user->socketFD, "324 " + user->getnickname() + " " + name + " +tn");
+    this->sendMessage(user->socketFD, "353 " + user->getnickname() + " " + name + " :@" + user->getnickname());
+    this->sendMessage(user->socketFD, "366 " + user->getnickname() + " " + name + " :End of NAMES list");
 }
 
 void Server::leaveChannel(std::string name, Client * user)
 {
+	name.erase(remove_if(name.begin(), name.end(), isspace));
     this->channelup[name]->part(user);
     // if (this->channelup[name]->_connectedClient.size() == 0)
     //     this->channelup.erase(name);
+}
+
+void	Server::sendMessageChannel(std::string message, std::string channel)
+{
+	for (std::map<int, Client *>::iterator it = this->channelup[channel]->_connectedClient.begin(); it != this->channelup[channel]->_connectedClient.end(); it++)
+	{
+		this->sendMessage(it->first, message);
+	}
 }

@@ -89,6 +89,28 @@ void Server::ping(std::string args, Client *User)
 
 void Server::part(std::string args, Client *User)
 {
-	this->leaveChannel(args, User);
-	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PART " + args);	
+	std::vector<std::string> splitargs;
+
+    tokenize(args, ':', splitargs);
+	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
+	this->leaveChannel(splitargs[0], User);
+	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PART " + splitargs[0] + " :" + splitargs[1]);	
+}
+
+void Server::privmsg(std::string args, Client *User)
+{
+	std::vector<std::string> splitargs;
+	std::vector<std::string> channels;
+	std::string message;
+
+	tokenize(args, ':', splitargs);
+	message = splitargs[1];
+	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
+	tokenize(splitargs[0], ',', channels);
+
+	for (size_t i = 0; i < channels.size(); i++)
+    {
+		this->sendMessageChannel(message, channels[i]);
+    }
+
 }

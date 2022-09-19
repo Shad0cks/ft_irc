@@ -46,6 +46,7 @@ class Server
         void joinChannel(std::string name, Client * user);
         channel * isConnected(Client * user);
         void leaveChannel(std::string name, Client * user);
+		void	sendMessageChannel(std::string message, std::string channel);
 
 		//commands
 		void nick(std::string args, Client *User);
@@ -55,6 +56,8 @@ class Server
 		void pass(std::string args, Client *User);
         void ping(std::string args, Client *User);
         void part(std::string args, Client *User);
+		void privmsg(std::string args, Client *User);
+		
 };
 
 #endif
