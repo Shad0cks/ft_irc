@@ -20,6 +20,7 @@ class channel
         void        part(Client *user);
         std::string const getchannelname(void)      {return(this->_channelname);}
         bool isInChannel(Client * user);
+		std::string getClientNames(void);
 
 };
 

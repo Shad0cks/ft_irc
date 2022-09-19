@@ -34,3 +34,13 @@ void        channel::part(Client *user)
     channelIt first = this->_connectedClient.begin();
     this->_connectedClientp.insert(std::make_pair(first->first, first->second));
 }
+
+std::string channel::getClientNames(void)
+{
+	std::string namesCompile;
+	for (channelIt it = this->_connectedClient.begin(); it != this->_connectedClient.end(); it++)
+	{
+		namesCompile +=  "@" + it->second->getnickname() + " ";
+	}
+	return (namesCompile);
+}
