@@ -64,13 +64,13 @@ void Server::join (std::string args, Client *User)
 		}
 		else
 		{
-			if (this->channelup[*it]->getneedpassword)
+			if (this->channelup[*it]->getneedpassword())
 			{
-				if(*it + 1 == this->channelup[*it]->getpassword)
+				if(*++it == this->channelup[*--it]->getpassword())
 				{
 					if (this->channelup[*it]->getlimituser())
 					{
-						if (this->channelup[*it]->getlimite > this->channelup[*it]->getnbuser + 1)
+						if (this->channelup[*it]->getlimite() > this->channelup[*it]->getnbuser() + 1)
 							this->joinChannel(*it, User);
 					}
 					else
@@ -79,7 +79,7 @@ void Server::join (std::string args, Client *User)
 			}
 			else if (this->channelup[*it]->getlimituser())
 			{
-				if (this->channelup[*it]->getlimite > this->channelup[*it]->getnbuser + 1)
+				if (this->channelup[*it]->getlimite() > this->channelup[*it]->getnbuser() + 1)
 					this->joinChannel(*it, User);
 			}
 			else
@@ -190,7 +190,7 @@ void Server::mode(std::string args, Client *User)
 				}
 			}
 		}
-		else if(splitargs[1][0] == '-' && splitargs.size() == 1)
+		else if(splitargs[1][0] == '-' && splitargs.size() != 1)
 		{
 			if (splitargs.size() == 2)
 				return;
@@ -199,7 +199,9 @@ void Server::mode(std::string args, Client *User)
 				for (int i = 0; i < splitargs[2].size(); i++)
 				{
 					if (splitargs[2][i] == 'n')
+					{
 						this->channelup[splitargs[0]]->setcansendmsghc(false);
+					}
 					else if (splitargs[2][i] == 'Q')
 						this->channelup[splitargs[0]]->setcankick(false);
 					else if (splitargs[2][i] == 'k')
