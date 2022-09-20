@@ -48,7 +48,6 @@ void Server::user(std::string args, Client *User)
 void Server::join (std::string args, Client *User)
 {
     std::vector<std::string> splitargs;
-
     tokenize(args, ',', splitargs);
     for (size_t i = 0; i < splitargs.size(); i++)
     {
@@ -116,7 +115,6 @@ void Server::part(std::string args, Client *User)
     tokenize(args, ':', splitargs);
 	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
 	this->leaveChannel(splitargs[0], User);
-	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PART " + splitargs[0] + " :" + splitargs[1]);	
 }
 
 void Server::privmsg(std::string args, Client *User)
@@ -133,8 +131,12 @@ void Server::privmsg(std::string args, Client *User)
 
 	for (size_t i = 0; i < channels.size(); i++)
     {
-		this->sendMessageChannel(message, channels[i], User);
-    }
+		if (this->channelup.count(channels[i]) > 0 && (this->channelup[channels[i]]->isInChannel(User) > 0 || this->channelup[channels[i]]->getcansendmsghc()))
+		{
+			std::cout << "Send msg : " << this->channelup[channels[i]]->isInChannel(User) << std::endl;
+			this->sendMessageChannel(message, channels[i], User);
+		}
+	}
 }
 
 void Server::mode(std::string args, Client *User)

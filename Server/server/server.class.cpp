@@ -309,7 +309,11 @@ void Server::joinChannel(std::string name, Client * user)
 void Server::leaveChannel(std::string name, Client * user)
 {
 	name.erase(remove_if(name.begin(), name.end(), isspace));
-    this->channelup[name]->part(user);
+	for (std::map<int, Client *>::iterator it = this->channelup[name]->_connectedClient.begin(); it != this->channelup[name]->_connectedClient.end(); it++)
+	{
+		this->sendMessage(it->first, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " PART " + name + " :" + user->getnickname());	
+	}
+	this->channelup[name]->part(user);
     // if (this->channelup[name]->_connectedClient.size() == 0)
     //     this->channelup.erase(name);
 }
