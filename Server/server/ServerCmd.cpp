@@ -56,7 +56,7 @@ void Server::join (std::string args, Client *User)
     }
 	for (std::vector<std::string>::iterator it = splitargs.begin(); it != splitargs.end(); it++)
 	{
-		if (it->front() != '#' && it->size() <= 1)
+		if (it->front() != '#' || it->size() <= 1)
 			continue;
 		if (this->channelup.count(*it) == 0)
 		{
@@ -125,10 +125,10 @@ void Server::mode(std::string args, Client *User)
 	tokenize(args, ' ', splitargs);
 	if (splitargs[0].front() == '#')
 	{
-		splitargs[0].erase(splitargs[0].begin());
+		splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
 		if (splitargs.size() == 1)
 			return;
-		if(splitargs[1][0] == '+' && splitargs.size() == 1)
+		if(splitargs[1][0] == '+' && splitargs.size() != 1)
 		{
 			if (splitargs.size() == 2)
 				return;
