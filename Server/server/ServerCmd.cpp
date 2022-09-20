@@ -48,11 +48,15 @@ void Server::user(std::string args, Client *User)
 void Server::join (std::string args, Client *User)
 {
     std::vector<std::string> splitargs;
-    tokenize(args, ',', splitargs);
-    for (size_t i = 0; i < splitargs.size(); i++)
-    {
-        std::cout << splitargs[i] << std::endl;
-    }
+	std::string mod;
+	tokenize(args, ',', splitargs);
+	std::size_t found = splitargs[splitargs.size() - 1].find(' ');
+
+	if (found != std::string::npos)
+	{
+		mod = splitargs[splitargs.size() - 1].substr(found, splitargs[splitargs.size() - 1].size());
+		splitargs[splitargs.size() - 1] = splitargs[splitargs.size() - 1].substr(0, found);
+	}
 	for (std::vector<std::string>::iterator it = splitargs.begin(); it != splitargs.end(); it++)
 	{
 		if (it->front() != '#' || it->size() <= 1)
@@ -60,7 +64,7 @@ void Server::join (std::string args, Client *User)
 		if (this->channelup.count(*it) == 0)
 		{
 			//create channel
-			this->createChannel(*it, User);
+			this->createChannel(*it, User, mod);
 		}
 		else
 		{
@@ -71,19 +75,19 @@ void Server::join (std::string args, Client *User)
 					if (this->channelup[*it]->getlimituser())
 					{
 						if (this->channelup[*it]->getlimite() > this->channelup[*it]->getnbuser() + 1)
-							this->joinChannel(*it, User);
+							this->joinChannel(*it, User, mod);
 					}
 					else
-						this->joinChannel(*it, User);
+						this->joinChannel(*it, User, mod);
 				}
 			}
 			else if (this->channelup[*it]->getlimituser())
 			{
 				if (this->channelup[*it]->getlimite() > this->channelup[*it]->getnbuser() + 1)
-					this->joinChannel(*it, User);
+					this->joinChannel(*it, User, mod);
 			}
 			else
-				this->joinChannel(*it, User);
+				this->joinChannel(*it, User, mod);
 		}
 	}
 }
@@ -236,7 +240,6 @@ void Server::kick(std::string args, Client *User)
 	{
 		if (message.empty())
 			message = ":bye kicked one";
-		//send :connard!connard@127.0.0.1 KICK #hey pdeshaye :aurevoir
 		for (std::map<int, Client *>::iterator it = this->channelup[splitargs[0]]->_connectedClient.begin(); it != this->channelup[splitargs[0]]->_connectedClient.end(); it++)
 		{
 			this->sendMessage(it->first, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " KICK " + splitargs[0] + " " + target->getnickname() + " " + message);	

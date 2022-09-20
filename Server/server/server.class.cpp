@@ -286,23 +286,23 @@ void Server::clientLog(int fd)
 	std::cout << "Welcome message sent successfully\n";
 }
 
-void Server::createChannel(std::string name, Client * owner)
+void Server::createChannel(std::string name, Client * owner, std::string mod)
 {
     channel * newChannel = new channel(name, owner);
     this->channelup[name] = newChannel;
     this->sendMessage(owner->socketFD, ":" + owner->getnickname() + "!" + owner->getnickname() + "@" + inet_ntoa(owner->clientAddr.sin_addr) + " JOIN " + name);	
-	this->sendMessage(owner->socketFD, "324 " + owner->getnickname() + " " + name + " +tn");
+	this->sendMessage(owner->socketFD, "324 " + owner->getnickname() + " " + name + " " + mod);
     this->sendMessage(owner->socketFD, "353 " + owner->getnickname() + " " + name + " :" + this->channelup[name]->getClientNames());
     this->sendMessage(owner->socketFD, "366 " + owner->getnickname() + " " + name + " :End of NAMES list");
 }
 
-void Server::joinChannel(std::string name, Client * user)
+void Server::joinChannel(std::string name, Client * user, std::string mod)
 {
     this->channelup[name]->newuser(user);
 	for (std::map<int, Client *>::iterator it = this->channelup[name]->_connectedClient.begin(); it != this->channelup[name]->_connectedClient.end(); it++)
 	{
 		this->sendMessage(it->second->socketFD, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " JOIN " + name);	
-		this->sendMessage(it->second->socketFD, "324 " + user->getnickname() + " " + name + " +tn");
+		this->sendMessage(it->second->socketFD, "324 " + user->getnickname() + " " + name + " " + mod);
 		this->sendMessage(it->second->socketFD, "353 " + user->getnickname() + " " + name + " :" + this->channelup[name]->getClientNames());
 		this->sendMessage(it->second->socketFD, "366 " + user->getnickname() + " " + name + " :End of NAMES list");
 	}
