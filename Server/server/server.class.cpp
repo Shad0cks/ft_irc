@@ -310,11 +310,13 @@ void Server::leaveChannel(std::string name, Client * user)
     //     this->channelup.erase(name);
 }
 
-void	Server::sendMessageChannel(std::string message, std::string channel)
+void	Server::sendMessageChannel(std::string message, std::string channel, Client * user)
 {
 	for (std::map<int, Client *>::iterator it = this->channelup[channel]->_connectedClient.begin(); it != this->channelup[channel]->_connectedClient.end(); it++)
 	{
+		if (it->first == user->socketFD)
+			continue;
 		this->sendMessage(it->first, message);
-		this->sendMessage(it->first, ":" + it->second->getnickname() + "!" + it->second->getnickname() + "@" + inet_ntoa(it->second->clientAddr.sin_addr) + " PRIVMSG " + channel + " :" + message);
+		this->sendMessage(it->first, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " PRIVMSG " + channel + " :" + message);
 	}
 }

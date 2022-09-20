@@ -111,8 +111,6 @@ void Server::privmsg(std::string args, Client *User)
 
 	for (size_t i = 0; i < channels.size(); i++)
     {
-		this->sendMessageChannel(message, channels[i]);
-		channelsString += channels[i] + " ";
-		
+		this->sendMessageChannel(message, channels[i], User);
     }
 }
