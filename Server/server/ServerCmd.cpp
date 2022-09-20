@@ -102,6 +102,7 @@ void Server::privmsg(std::string args, Client *User)
 	std::vector<std::string> splitargs;
 	std::vector<std::string> channels;
 	std::string message;
+	std::string channelsString;
 
 	tokenize(args, ':', splitargs);
 	message = splitargs[1];
@@ -111,6 +112,7 @@ void Server::privmsg(std::string args, Client *User)
 	for (size_t i = 0; i < channels.size(); i++)
     {
 		this->sendMessageChannel(message, channels[i]);
+		channelsString += channels[i] + " ";
+		
     }
-
 }

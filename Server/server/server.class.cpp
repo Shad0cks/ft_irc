@@ -227,7 +227,7 @@ void    Server::switchcommande(std::string message, Client *User)
             &Server::part,
 			&Server::privmsg,
 	};
-    for(int i = 0; i < comp->size(); i++)
+    for(int i = 0; i < 8; i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])
@@ -293,10 +293,13 @@ void Server::createChannel(std::string name, Client * owner)
 void Server::joinChannel(std::string name, Client * user)
 {
     this->channelup[name]->newuser(user);
-	this->sendMessage(user->socketFD, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " JOIN " + name);	
-	this->sendMessage(user->socketFD, "324 " + user->getnickname() + " " + name + " +tn");
-    this->sendMessage(user->socketFD, "353 " + user->getnickname() + " " + name + " :" + this->channelup[name]->getClientNames());
-    this->sendMessage(user->socketFD, "366 " + user->getnickname() + " " + name + " :End of NAMES list");
+	for (std::map<int, Client *>::iterator it = this->channelup[name]->_connectedClient.begin(); it != this->channelup[name]->_connectedClient.end(); it++)
+	{
+		this->sendMessage(it->second->socketFD, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " JOIN " + name);	
+		this->sendMessage(it->second->socketFD, "324 " + user->getnickname() + " " + name + " +tn");
+		this->sendMessage(it->second->socketFD, "353 " + user->getnickname() + " " + name + " :" + this->channelup[name]->getClientNames());
+		this->sendMessage(it->second->socketFD, "366 " + user->getnickname() + " " + name + " :End of NAMES list");
+	}
 }
 
 void Server::leaveChannel(std::string name, Client * user)
@@ -311,7 +314,7 @@ void	Server::sendMessageChannel(std::string message, std::string channel)
 {
 	for (std::map<int, Client *>::iterator it = this->channelup[channel]->_connectedClient.begin(); it != this->channelup[channel]->_connectedClient.end(); it++)
 	{
-		std::cout << "sending name : " <<  it->second->getnickname() << std::endl;
 		this->sendMessage(it->first, message);
+		this->sendMessage(it->first, ":" + it->second->getnickname() + "!" + it->second->getnickname() + "@" + inet_ntoa(it->second->clientAddr.sin_addr) + " PRIVMSG " + channel + " :" + message);
 	}
 }
