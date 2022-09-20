@@ -114,10 +114,7 @@ void Server::privmsg(std::string args, Client *User)
 	for (size_t i = 0; i < channels.size(); i++)
     {
 		if (this->channelup.count(channels[i]) > 0 && (this->channelup[channels[i]]->isInChannel(User) > 0 || this->channelup[channels[i]]->getcansendmsghc()))
-		{
-			std::cout << "Send msg : " << this->channelup[channels[i]]->isInChannel(User) << std::endl;
 			this->sendMessageChannel(message, channels[i], User);
-		}
 	}
 }
 
@@ -201,4 +198,32 @@ void Server::mode(std::string args, Client *User)
 void Server::pong(std::string args, Client *User)
 {
 	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PING ft_irc " + args);	
+}
+
+void Server::kick(std::string args, Client *User)
+{
+	//get KICK #hey pdeshaye :aurevoir
+	//send :connard!connard@127.0.0.1 KICK #hey pdeshaye :aurevoir
+	std::string message;
+	std::vector<std::string> splitargs;
+    tokenize(args, ' ', splitargs);
+	for (size_t i = 0; i < splitargs.size(); i++)
+	{
+		std::cout << "message : {" <<  splitargs[i] << "} \n";
+	}	
+	Client * target = this->channelup[splitargs[0]]->getClientByName(splitargs[1]);
+	if (target && this->channelup[splitargs[0]]->isModo(User))
+	{
+		if (splitargs.size() > 2)
+			message = splitargs[2];
+		else
+			message = ":bye kicked one";
+		//send :connard!connard@127.0.0.1 KICK #hey pdeshaye :aurevoir
+		for (std::map<int, Client *>::iterator it = this->channelup[splitargs[0]]->_connectedClient.begin(); it != this->channelup[splitargs[0]]->_connectedClient.end(); it++)
+		{
+			this->sendMessage(it->first, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " KICK " + splitargs[0] + " " + target->getnickname() + " " + message);	
+		}
+		this->leaveChannel(splitargs[0], target);
+	}
+
 }

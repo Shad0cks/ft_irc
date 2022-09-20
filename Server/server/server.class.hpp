@@ -59,6 +59,7 @@ class Server
 		void privmsg(std::string args, Client *User);
         void mode(std::string args, Client *User);
 		void pong(std::string args, Client *User);
+		void kick(std::string args, Client *User);
 		
 };
 

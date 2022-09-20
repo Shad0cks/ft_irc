@@ -204,7 +204,8 @@ std::string Server::comp[] =
         "PART",
 		"PRIVMSG",
         "MODE",
-        "PONG"
+        "PONG",
+		"KICK"
 };
 
 void    Server::switchcommande(std::string message, Client *User)
@@ -229,9 +230,10 @@ void    Server::switchcommande(std::string message, Client *User)
             &Server::part,
 			&Server::privmsg,
             &Server::mode,
-			&Server::pong
+			&Server::pong,
+			&Server::kick
 	};
-    for(int i = 0; i < 9; i++)
+    for(int i = 0; i < 11; i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])
