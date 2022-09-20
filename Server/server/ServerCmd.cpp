@@ -126,15 +126,15 @@ void Server::mode(std::string args, Client *User)
 	if (splitargs[0].front() == '#')
 	{
 		splitargs[0].erase(splitargs[0].begin());
-		if (!splitargs[1])
-			return(NULL);
+		if (splitargs.size() == 1)
+			return;
 		if(splitargs[1][0] == '+' && splitargs.size() == 1)
 		{
-			if (!splitargs[2])
-				return(NULL);
+			if (splitargs.size() == 2)
+				return;
 			else
 			{
-				for (int i = 0; i < splitargs[2].size(); i++;)
+				for (int i = 0; i < splitargs[2].size(); i++)
 				{
 					if (splitargs[2][i] == 'n')
 						this->channelup[splitargs[0]]->setcansendmsghc(true);
@@ -142,18 +142,18 @@ void Server::mode(std::string args, Client *User)
 						this->channelup[splitargs[0]]->setcankick(true);
 					else if (splitargs[2][i] == 'k')
 						{
-							if (splitargs[2].size() != 1 || !splitargs[3])
-								return(NULL);
+							if (splitargs[2].size() != 1 || splitargs.size() == 3)
+								return;
 							else
 							{
 								this->channelup[splitargs[0]]->setneedpassword(true);
 								this->channelup[splitargs[0]]->setpassword(splitargs[3]);
 							}	
-						};
+						}
 					else if (splitargs[2][i] == 'l')
 					{
-							if (splitargs[2].size() != 1 || !splitargs[3])
-								return(NULL);
+							if (splitargs[2].size() != 1 || splitargs.size() == 3)
+								return;
 							else
 							{
 								if (std::stoi(splitargs[3]) > 0)
@@ -162,24 +162,24 @@ void Server::mode(std::string args, Client *User)
 									this->channelup[splitargs[0]]->setlimite(std::stoi(splitargs[3]));
 								}
 								else
-									return(NULL);
+									return;
 							}	
 					}
 					else
-						return(NULL);
+						return;
 				}
 			}
 		}
 		else if(splitargs[1][0] == '-' && splitargs.size() == 1)
 		{
-			if (!splitargs[2])
-				return(NULL);
+			if (splitargs.size() == 2)
+				return;
 			else
 			{
-				for (int i = 0; i < splitargs[2].size(); i++;)
+				for (int i = 0; i < splitargs[2].size(); i++)
 				{
 					if (splitargs[2][i] == 'n')
-						this->channelup[splitargs[0]]->setcansendmsghc(false);;
+						this->channelup[splitargs[0]]->setcansendmsghc(false);
 					else if (splitargs[2][i] == 'Q')
 						this->channelup[splitargs[0]]->setcankick(false);
 					else if (splitargs[2][i] == 'k')
@@ -187,12 +187,12 @@ void Server::mode(std::string args, Client *User)
 					else if (splitargs[2][i] == 'l')
 						this->channelup[splitargs[0]]->setlimituser(false);
 					else
-						return(NULL);
+						return;
 				}
 			}
 		}
 		else
-			retrun(NULL);
+			return;
 	}
 }
 
