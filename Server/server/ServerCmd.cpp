@@ -127,10 +127,10 @@ void Server::mode(std::string args, Client *User)
 	tokenize(args, ' ', splitargs);
 	if (splitargs[0].front() == '#')
 	{
-		splitargs[0].erase(splitargs[0].begin());
+		splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
 		if (splitargs.size() == 1)
 			return;
-		if(splitargs[1][0] == '+' && splitargs.size() == 1)
+		if(splitargs[1][0] == '+' && splitargs.size() != 1)
 		{
 			if (splitargs.size() == 2)
 				return;
