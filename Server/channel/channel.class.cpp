@@ -4,6 +4,9 @@ channel::channel (std::string channelname, Client *firstuser):_channelname(chann
 {
     this->_connectedClient.insert(std::make_pair(firstuser->socketFD, firstuser));
     this->_connectedClientp.insert(std::make_pair(firstuser->socketFD, firstuser));
+    this->_cankick = false;
+    this->_cansendmsghc = false;
+    this->_limituser = false;
 }
 
 void channel::newuser(Client *User)

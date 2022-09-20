@@ -202,7 +202,8 @@ std::string Server::comp[] =
 		"PASS",
         "PING",
         "PART",
-		"PRIVMSG"
+		"PRIVMSG",
+        "MODE"
 };
 
 void    Server::switchcommande(std::string message, Client *User)
@@ -226,6 +227,7 @@ void    Server::switchcommande(std::string message, Client *User)
             &Server::ping,
             &Server::part,
 			&Server::privmsg,
+            &Server::mode
 	};
     for(int i = 0; i < 8; i++)
     {

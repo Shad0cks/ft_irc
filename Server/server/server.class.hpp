@@ -57,6 +57,7 @@ class Server
         void ping(std::string args, Client *User);
         void part(std::string args, Client *User);
 		void privmsg(std::string args, Client *User);
+        void mode(std::string args, Client *User);
 		
 };
 
