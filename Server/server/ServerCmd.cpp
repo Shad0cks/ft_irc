@@ -202,21 +202,19 @@ void Server::pong(std::string args, Client *User)
 
 void Server::kick(std::string args, Client *User)
 {
-	//get KICK #hey pdeshaye :aurevoir
-	//send :connard!connard@127.0.0.1 KICK #hey pdeshaye :aurevoir
 	std::string message;
 	std::vector<std::string> splitargs;
     tokenize(args, ' ', splitargs);
-	for (size_t i = 0; i < splitargs.size(); i++)
+	for (size_t i = 2; i < splitargs.size(); i++)
 	{
-		std::cout << "message : {" <<  splitargs[i] << "} \n";
+		message += splitargs[i];
+		if (i + 1 != splitargs.size())
+			message += " ";
 	}	
 	Client * target = this->channelup[splitargs[0]]->getClientByName(splitargs[1]);
 	if (target && this->channelup[splitargs[0]]->isModo(User))
 	{
-		if (splitargs.size() > 2)
-			message = splitargs[2];
-		else
+		if (message.empty())
 			message = ":bye kicked one";
 		//send :connard!connard@127.0.0.1 KICK #hey pdeshaye :aurevoir
 		for (std::map<int, Client *>::iterator it = this->channelup[splitargs[0]]->_connectedClient.begin(); it != this->channelup[splitargs[0]]->_connectedClient.end(); it++)

@@ -33,6 +33,8 @@ bool channel::isModo(Client * user)
 
 void        channel::part(Client *user)
 {
+	if (this->_connectedClientp.count(user->socketFD) > 0)
+        this->_connectedClientp.erase(user->socketFD);
     if (this->_connectedClient.count(user->socketFD) > 0)
         this->_connectedClient.erase(user->socketFD);
     if (this->_connectedClient.size() == 0)
