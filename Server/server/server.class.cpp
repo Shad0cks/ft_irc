@@ -201,7 +201,6 @@ std::string Server::comp[] =
         "QUIT",
 		"PASS",
         "PING",
-		"PONG",
         "PART",
 		"PRIVMSG",
         "MODE",
