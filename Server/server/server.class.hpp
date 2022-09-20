@@ -46,7 +46,7 @@ class Server
         void joinChannel(std::string name, Client * user);
         channel * isConnected(Client * user);
         void leaveChannel(std::string name, Client * user);
-		void	sendMessageChannel(std::string message, std::string channel);
+		void	sendMessageChannel(std::string message, std::string channel, Client * user);
 
 		//commands
 		void nick(std::string args, Client *User);
@@ -58,6 +58,7 @@ class Server
         void part(std::string args, Client *User);
 		void privmsg(std::string args, Client *User);
         void mode(std::string args, Client *User);
+		void pong(std::string args, Client *User);
 		
 };
 
