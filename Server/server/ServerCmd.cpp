@@ -12,6 +12,8 @@ void Server::pass(std::string args, Client *User)
     
 	if (args.compare(this->password) == 0)
 		User->setPass = true;
+	else
+		this->sendMessage(User->socketFD, "Wrong password");	
 }
 
 void Server::nick(std::string args, Client *User)
@@ -54,6 +56,8 @@ void Server::join (std::string args, Client *User)
     }
 	for (std::vector<std::string>::iterator it = splitargs.begin(); it != splitargs.end(); it++)
 	{
+		if (it->front() != '#' && it->size() <= 1)
+			continue;
 		if (this->channelup.count(*it) == 0)
 		{
 			//create channel
@@ -113,4 +117,9 @@ void Server::privmsg(std::string args, Client *User)
     {
 		this->sendMessageChannel(message, channels[i], User);
     }
+}
+
+void Server::pong(std::string args, Client *User)
+{
+	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PING ft_irc " + args);	
 }
