@@ -42,8 +42,8 @@ class Server
         std::string retcommande(std::string message);  // only return the commande in string
         std::string retcommandearg(std::string message);  // only return the arg after the command in string
 		void clientLog(int fd);
-        void createChannel(std::string name, Client * owner);
-        void joinChannel(std::string name, Client * user);
+        void createChannel(std::string name, Client * owner, std::string mod);
+        void joinChannel(std::string name, Client * user, std::string mod);
         channel * isConnected(Client * user);
         void leaveChannel(std::string name, Client * user);
 		void	sendMessageChannel(std::string message, std::string channel, Client * user);
@@ -60,6 +60,7 @@ class Server
         void mode(std::string args, Client *User);
 		void pong(std::string args, Client *User);
         void names(std::string args, Client *User);
+		void kick(std::string args, Client *User);
 		
 };
 

@@ -28,8 +28,15 @@ bool channel::isInChannel(Client * user)
     return (this->_connectedClient.count(user->socketFD) >= 1);
 }
 
+bool channel::isModo(Client * user)
+{
+    return (this->_connectedClientp.count(user->socketFD) >= 1);
+}
+
 void        channel::part(Client *user)
 {
+	if (this->_connectedClientp.count(user->socketFD) > 0)
+        this->_connectedClientp.erase(user->socketFD);
     if (this->_connectedClient.count(user->socketFD) > 0)
         this->_connectedClient.erase(user->socketFD);
     if (this->_connectedClient.size() == 0)
@@ -49,4 +56,14 @@ std::string channel::getClientNames(void)
 		namesCompile +=  "@" + it->second->getnickname() + " ";
 	}
 	return (namesCompile);
+}
+
+Client * 		channel::getClientByName(std::string name)
+{
+	for (channelIt it = this->_connectedClient.begin(); it != this->_connectedClient.end(); it++)
+	{
+		if (it->second->getnickname() == name)
+			return (it->second);
+	}
+	return (NULL);
 }
