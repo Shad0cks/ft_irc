@@ -222,3 +222,15 @@ void Server::pong(std::string args, Client *User)
 {
 	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PING ft_irc " + args);	
 }
+
+void Server::names(std::string args, Client *User)
+{
+	args.erase(remove_if(args.begin(), args.end(), isspace));
+	std::cout << "[" << args << "]\n";
+	std::string buffer;
+	for (std::map<int, Client *>::iterator it = this->channelup[args]->_connectedClient.begin(); it != this->channelup[args]->_connectedClient.end(); it++)
+	{
+		buffer = buffer + "@" + it->second->getnickname() + " ";
+	}
+	this->sendMessage(User->socketFD, "356 " + User->getnickname() + " " + args + " :" + buffer);
+}

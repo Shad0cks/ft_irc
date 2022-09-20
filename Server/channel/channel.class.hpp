@@ -8,8 +8,6 @@ class Client;
 class channel
 {
     private:
-        typedef  std::map<int, Client *>::iterator    channelIt;
-        std::map<int, Client *>                         _connectedClientp;
         const std::string                               _channelname;
         bool                                            _cankick;
         bool                                            _cansendmsghc;
@@ -18,7 +16,9 @@ class channel
         unsigned int                                    _limite;
         std::string                                     _password;
         int                                             _nbconnected;
+        std::map<int, Client *>                         _connectedClientp;
     public:
+        typedef  std::map<int, Client *>::iterator    channelIt;
         channel(std::string channelname, Client *firstclient);
         std::map<int, Client *>                         _connectedClient;
         virtual ~channel(void);
