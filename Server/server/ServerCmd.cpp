@@ -65,8 +65,26 @@ void Server::join (std::string args, Client *User)
 		}
 		else
 		{
-			//join channel
-			this->joinChannel(*it, User);
+			if (this->channelup[*it]->getneedpassword)
+			{
+				if(*it + 1 == this->channelup[*it]->getpassword)
+				{
+					if (this->channelup[*it]->getlimituser())
+					{
+						if (this->channelup[*it]->getlimite > this->channelup[*it]->getnbuser + 1)
+							this->joinChannel(*it, User);
+					}
+					else
+						this->joinChannel(*it, User);
+				}
+			}
+			else if (this->channelup[*it]->getlimituser())
+			{
+				if (this->channelup[*it]->getlimite > this->channelup[*it]->getnbuser + 1)
+					this->joinChannel(*it, User);
+			}
+			else
+				this->joinChannel(*it, User);
 		}
 	}
 }

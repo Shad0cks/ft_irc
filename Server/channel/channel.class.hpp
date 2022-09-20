@@ -17,7 +17,7 @@ class channel
         bool                                            _needpassword;
         unsigned int                                    _limite;
         std::string                                     _password;
-
+        int                                             _nbconnected;
     public:
         channel(std::string channelname, Client *firstclient);
         std::map<int, Client *>                         _connectedClient;
@@ -30,6 +30,7 @@ class channel
         bool        getneedpassword(void)           {return(this->_needpassword);}
         unsigned int getlimite(void)                {return(this->_limite);}
         std::string getpassword(void)               {return(this->_password);}
+        int         getnbuser(void)                 {return(this->_nbconnected);}
         void        setpassword(std::string m)      {this->_password = m;}
         void        setneedpassword(bool m)         {this->_needpassword = m;}
         void        setlimite(unsigned int m)       {this->_limite = m;}

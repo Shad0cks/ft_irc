@@ -7,11 +7,13 @@ channel::channel (std::string channelname, Client *firstuser):_channelname(chann
     this->_cankick = false;
     this->_cansendmsghc = false;
     this->_limituser = false;
+    this->_nbconnected = 1;
 }
 
 void channel::newuser(Client *User)
 {
     this->_connectedClient.insert(std::make_pair(User->socketFD, User));
+    this->_nbconnected++;
     return;
 }
 
@@ -36,6 +38,7 @@ void        channel::part(Client *user)
         return ;
     channelIt first = this->_connectedClient.begin();
     this->_connectedClientp.insert(std::make_pair(first->first, first->second));
+    this->_nbconnected--;
 }
 
 std::string channel::getClientNames(void)
