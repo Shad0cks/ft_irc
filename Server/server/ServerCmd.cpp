@@ -103,6 +103,22 @@ channel * Server::isConnected(Client * user)
 
 void Server::quit(std::string args, Client *User)
 {
+	//QUIT :bye
+	//:pdeshaye!pdeshaye@127.0.0.1 QUIT pdeshaye: :bye
+	std::string message;
+	std::vector<std::string> splitargs;
+    tokenize(args, ' ', splitargs);
+	for (size_t i = 1; i < splitargs.size(); i++)
+	{
+		message += splitargs[i];
+		if (i + 1 != splitargs.size())
+			message += " ";
+	}	
+	if (message.empty())
+		message = ": bye";
+	for (clientIt it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)
+		this->sendMessage(it->first, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " QUIT " + User->getnickname() + ": " + message);	
+	//	this->leaveChannel(splitargs[0], target);
 	this->disconnectClient(User->socketFD);
 }
 

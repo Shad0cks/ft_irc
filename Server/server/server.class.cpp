@@ -87,9 +87,8 @@ void Server::catchClient()
 
 void Server::disconnectClient(int fd)
 {  
-	
 	if (this->connectedClient[fd]->isLog)
-		std::cout << "Host disconnected , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
+		std::cout << "Host disconnected : " << this->connectedClient[fd]->getnickname() << " , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
 	delete this->connectedClient[fd];
 	this->connectedClient.erase(fd);
 	close(fd);
@@ -157,10 +156,11 @@ void Server::runningServer(void)
                 //Echo back the message that came in 
                 else 
                 {  
+					
                     //set the string terminating NULL byte on the end 
                     //of the data read 
-                    buffer[valread] = '\0';  
-                    send(sd , buffer , strlen(buffer) , 0 );  
+					this->quit("QUIT :Client Ctrl+C", it->second);
+                    break;  
                 }  
 				valread = 0;
 				memset(buffer, 0, 1024);
