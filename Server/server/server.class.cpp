@@ -86,8 +86,10 @@ void Server::catchClient()
 }
 
 void Server::disconnectClient(int fd)
-{  
+{ 
+
 	if (this->connectedClient[fd]->isLog)
+		std::cout << "Host disconnected , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
 		std::cout << "Host disconnected : " << this->connectedClient[fd]->getnickname() << " , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
 	delete this->connectedClient[fd];
 	this->connectedClient.erase(fd);
@@ -156,7 +158,6 @@ void Server::runningServer(void)
                 //Echo back the message that came in 
                 else 
                 {  
-					
                     //set the string terminating NULL byte on the end 
                     //of the data read 
 					this->quit("QUIT :Client Ctrl+C", it->second);
@@ -179,9 +180,17 @@ void Server::sendMessage(int fd, std::string msg)
 
 int Server::receveMessage(int fd, std::string  buffer)
 {
-    std::cout << "[" << (int)buffer.back() << "]\n";
 	std::string message = counter_nl(buffer, 13);
-    message = counter_nl(message, 10);
+	if (buffer.back() != '\n')
+	{
+		this->connectedClient[fd]->cmdBuffer += buffer;
+		return (0);
+	}
+
+	if (!this->connectedClient[fd]->cmdBuffer.empty())
+		message.insert(0, this->connectedClient[fd]->cmdBuffer);
+	message = counter_nl(message, 10);
+	this->connectedClient[fd]->cmdBuffer.clear();
 	if (!this->connectedClient[fd]->isLog)
 	{
 		std::string cmd = retcommande(message);
@@ -224,7 +233,7 @@ void    Server::switchcommande(std::string message, Client *User)
     arg = retcommandearg(message);
 
     void	(Server::*fonction[])(std::string args, Client *User) = {
-            &Server::nick,
+			&Server::nick,
 			&Server::user,
 			&Server::join,
 			&Server::quit,
