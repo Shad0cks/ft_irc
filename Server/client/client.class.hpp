@@ -17,6 +17,7 @@ class Client
 		bool			        		setNick;
 		bool			        		setUser;
 		bool							setPass;
+		std::string						cmdBuffer;
 
         void    setnickname(std::string name)   {this->_nickname = name;}
         void    setusername(std::string name)   {this->_username = name;}

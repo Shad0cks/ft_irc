@@ -9,9 +9,6 @@ void Server::pass(std::string args, Client *User)
 		std::cout << "421 " << User->getnickname() << " PASS :Unknown command" << std::endl;
 		return ;
 	}
-	std::cout << "(" << this->password << ")\n";
-    std::cout << "(" << args << ")\n";
-
 	if (args.compare(this->password) == 0)
 		User->setPass = true;
 	else

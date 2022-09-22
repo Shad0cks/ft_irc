@@ -178,10 +178,18 @@ void Server::sendMessage(int fd, std::string msg)
 }
 
 int Server::receveMessage(int fd, std::string  buffer)
-{
-    std::cout << "[" << (int)buffer.back() << "]\n";
+{	
 	std::string message = counter_nl(buffer, 13);
-    message = counter_nl(message, 10);
+	if (buffer.back() != '\n')
+	{
+		this->connectedClient[fd]->cmdBuffer += buffer;
+		return (0);
+	}
+	
+	if (!this->connectedClient[fd]->cmdBuffer.empty())
+		message.insert(0, this->connectedClient[fd]->cmdBuffer);
+	message = counter_nl(message, 10);
+	this->connectedClient[fd]->cmdBuffer.clear();
 	if (!this->connectedClient[fd]->isLog)
 	{
 		std::string cmd = retcommande(message);
@@ -189,7 +197,7 @@ int Server::receveMessage(int fd, std::string  buffer)
 			switchcommande(message, this->connectedClient[fd]);
 		return (0);
 	}
-
+	
 	switchcommande(message, this->connectedClient[fd]);
 	//std::cout << this->connectedClient[fd] << " : " << buffer << std::endl;
 	return (1);
