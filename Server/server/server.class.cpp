@@ -178,18 +178,10 @@ void Server::sendMessage(int fd, std::string msg)
 }
 
 int Server::receveMessage(int fd, std::string  buffer)
-{	
+{
+    std::cout << "[" << (int)buffer.back() << "]\n";
 	std::string message = counter_nl(buffer, 13);
-	if (buffer.back() != '\n')
-	{
-		this->connectedClient[fd]->cmdBuffer += buffer;
-		return (0);
-	}
-	
-	if (!this->connectedClient[fd]->cmdBuffer.empty())
-		message.insert(0, this->connectedClient[fd]->cmdBuffer);
-	message = counter_nl(message, 10);
-	this->connectedClient[fd]->cmdBuffer.clear();
+    message = counter_nl(message, 10);
 	if (!this->connectedClient[fd]->isLog)
 	{
 		std::string cmd = retcommande(message);
@@ -197,7 +189,7 @@ int Server::receveMessage(int fd, std::string  buffer)
 			switchcommande(message, this->connectedClient[fd]);
 		return (0);
 	}
-	
+
 	switchcommande(message, this->connectedClient[fd]);
 	//std::cout << this->connectedClient[fd] << " : " << buffer << std::endl;
 	return (1);
@@ -314,10 +306,10 @@ void Server::joinChannel(std::string name, Client * user, std::string mod)
 	for (std::map<int, Client *>::iterator it = this->channelup[name]->_connectedClient.begin(); it != this->channelup[name]->_connectedClient.end(); it++)
 	{
 		this->sendMessage(it->second->socketFD, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " JOIN " + name);	
-		this->sendMessage(it->second->socketFD, "324 " + user->getnickname() + " " + name + " " + mod);
-		this->sendMessage(it->second->socketFD, "353 " + user->getnickname() + " " + name + " :" + this->channelup[name]->getClientNames());
-		this->sendMessage(it->second->socketFD, "366 " + user->getnickname() + " " + name + " :End of NAMES list");
 	}
+    this->sendMessage(user->socketFD, "324 " + user->getnickname() + " " + name + " " + mod);
+    this->sendMessage(user->socketFD, "353 " + user->getnickname() + " " + name + " :" + this->channelup[name]->getClientNames());
+    this->sendMessage(user->socketFD, "366 " + user->getnickname() + " " + name + " :End of NAMES list");
 }
 
 void Server::leaveChannel(std::string name, Client * user)

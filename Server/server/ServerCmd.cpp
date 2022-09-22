@@ -157,9 +157,10 @@ void Server::mode(std::string args, Client *User)
 {
 	std::vector<std::string> splitargs;
 	tokenize(args, ' ', splitargs);
+	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
+	Client *target;
 	if (splitargs[0].front() == '#')
 	{
-		splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
 		if (splitargs.size() == 1)
 			return;
 		if(splitargs[1][0] == '+' && splitargs.size() != 1)
@@ -199,6 +200,14 @@ void Server::mode(std::string args, Client *User)
 									return;
 							}	
 					}
+					else if (splitargs[2][i] == 'o' && splitargs.size() == 4)
+					{
+						target = getClientByName(splitargs[3]);
+						if (target)
+						{
+							this->channelup[splitargs[0]]->newuserp(target);
+						}
+					}
 					else
 						return;
 				}
@@ -222,6 +231,14 @@ void Server::mode(std::string args, Client *User)
 						this->channelup[splitargs[0]]->setneedpassword(false);
 					else if (splitargs[2][i] == 'l')
 						this->channelup[splitargs[0]]->setlimituser(false);
+					else if (splitargs[2][i] == 'o' && splitargs.size() == 4)
+					{
+						target = getClientByName(splitargs[3]);
+						if (target)
+						{
+							this->channelup[splitargs[0]]->eraseop(target);
+						}
+					}
 					else
 						return;
 				}
@@ -229,6 +246,39 @@ void Server::mode(std::string args, Client *User)
 		}
 		else
 			return;
+	}
+	else
+	{
+		if (splitargs.size() == 1)
+			return;
+		else if (splitargs.size() == 2)
+			return;
+		if(splitargs[1][0] == '+' && splitargs.size() != 1)
+		{
+			for (int i = 0; i < splitargs[2].size(); i++)
+			{
+				if (splitargs[2][i] == 'o')
+				{
+					target = getClientByName(splitargs[0]);
+					if (target)
+						target->setoperator(true);
+				}
+			}
+		}
+		else if (splitargs[1][0] == '-' && splitargs.size() != 1)
+		{
+			for (int i = 0; i < splitargs[2].size(); i++)
+			{
+				if (splitargs[2][i] == 'o')
+				{
+					target = getClientByName(splitargs[0]);
+					if (target)
+						target->setoperator(false);
+				}
+			}
+		}
+		else
+			return ;
 	}
 }
 
@@ -243,7 +293,10 @@ void Server::names(std::string args, Client *User)
 	std::string buffer;
 	for (std::map<int, Client *>::iterator it = this->channelup[args]->_connectedClient.begin(); it != this->channelup[args]->_connectedClient.end(); it++)
 	{
-		buffer = buffer + "@" + it->second->getnickname() + " ";
+		if (this->channelup[args]->isModo(it->second))
+			buffer = buffer + "@" + it->second->getnickname() + " ";
+		else
+			buffer = buffer + "" + it->second->getnickname() + " ";
 	}
 	this->sendMessage(User->socketFD, "353 " + User->getnickname() + " " + args + " :" + buffer);
 	this->sendMessage(User->socketFD, "366 " + User->getnickname() + " " + args + " :End of NAMES list");

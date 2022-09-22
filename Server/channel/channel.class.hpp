@@ -40,7 +40,9 @@ class channel
         void        setlimituser(bool m)            {this->_limituser = m;}
 		std::string getClientNames(void);
         void        newuser(Client *user);
+        void        newuserp(Client *User);
         void        part(Client *user);
+        void        eraseop(Client *user);
         bool 		isInChannel(Client * user);
 		Client * 	getClientByNameInChannel(std::string name);
 		bool 		isModo(Client * user);

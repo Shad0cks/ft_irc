@@ -17,6 +17,12 @@ void channel::newuser(Client *User)
     return;
 }
 
+void channel::newuserp(Client *User)
+{
+    this->_connectedClientp.insert(std::make_pair(User->socketFD, User));
+    return;
+}
+
 channel::~channel(void)
 {
 
@@ -46,6 +52,16 @@ void        channel::part(Client *user)
     channelIt first = this->_connectedClient.begin();
     this->_connectedClientp.insert(std::make_pair(first->first, first->second));
     this->_nbconnected--;
+}
+
+void        channel::eraseop(Client *user)
+{
+    if (this->_connectedClientp.count(user->socketFD) > 0)
+        this->_connectedClientp.erase(user->socketFD);
+    if (this->_connectedClientp.size() > 0)
+        return ;
+    channelIt first = this->_connectedClient.begin();
+    this->_connectedClientp.insert(std::make_pair(first->first, first->second));
 }
 
 std::string channel::getClientNames(void)
