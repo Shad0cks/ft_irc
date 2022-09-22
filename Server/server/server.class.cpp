@@ -2,9 +2,9 @@
 #include <errno.h>
 
 
-std::string counter_nl(std::string str)
+std::string counter_nl(std::string str, int c)
 { 
-	std::size_t found = str.find(13);
+	std::size_t found = str.find(c);
 	std::string commande;
 
     if (found != std::string::npos)
@@ -20,7 +20,7 @@ Server::Server(std::string port, std::string pasword)
     int flags;
     this->isRunning = true;
     this->port = std::stoi(port);
-    this->password = pasword;
+    this->password = counter_nl(pasword, '\n');
     if((this->socketFD = socket(AF_INET, SOCK_STREAM, 0)) == 0)
         this->ExitFailure("could not create TCP listening socket");
     
@@ -177,9 +177,11 @@ void Server::sendMessage(int fd, std::string msg)
 		perror("send"); 	
 }
 
-int Server::receveMessage(int fd, char * buffer)
+int Server::receveMessage(int fd, std::string  buffer)
 {
-	std::string message = counter_nl(buffer);
+    std::cout << "[" << (int)buffer.back() << "]\n";
+	std::string message = counter_nl(buffer, 13);
+    message = counter_nl(message, 10);
 	if (!this->connectedClient[fd]->isLog)
 	{
 		std::string cmd = retcommande(message);

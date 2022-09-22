@@ -5,6 +5,7 @@
 #include "../includes.hpp"
 class Client;
 
+
 class channel
 {
     private:

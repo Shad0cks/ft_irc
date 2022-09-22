@@ -38,7 +38,7 @@ class Server
 		void disconnectClient(int fd); 
         void runningServer(void);
         void switchcommande(std::string message, Client *User);
-		int receveMessage(int fd, char * buffer);
+		int receveMessage(int fd, std::string buffer);
         std::string retcommande(std::string message);  // only return the commande in string
         std::string retcommandearg(std::string message);  // only return the arg after the command in string
 		void clientLog(int fd);
