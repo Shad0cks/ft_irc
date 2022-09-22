@@ -47,6 +47,7 @@ class Server
         channel * isConnected(Client * user);
         void leaveChannel(std::string name, Client * user);
 		void	sendMessageChannel(std::string message, std::string channel, Client * user);
+		Client * 	getClientByName(std::string name);
 
 		//commands
 		void nick(std::string args, Client *User);

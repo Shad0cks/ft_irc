@@ -332,3 +332,13 @@ void	Server::sendMessageChannel(std::string message, std::string channel, Client
 		this->sendMessage(it->first, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " PRIVMSG " + channel + " :" + message);
 	}
 }
+
+Client * 		Server::getClientByName(std::string name)
+{
+	for (clientIt it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)
+	{
+		if (it->second->getnickname() == name)
+			return (it->second);
+	}
+	return (NULL);
+}

@@ -41,7 +41,7 @@ class channel
         void        newuser(Client *user);
         void        part(Client *user);
         bool 		isInChannel(Client * user);
-		Client * 	getClientByName(std::string name);
+		Client * 	getClientByNameInChannel(std::string name);
 		bool 		isModo(Client * user);
 
 };

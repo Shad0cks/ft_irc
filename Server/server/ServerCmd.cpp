@@ -127,6 +127,7 @@ void Server::privmsg(std::string args, Client *User)
 	std::vector<std::string> channels;
 	std::string message;
 	std::string channelsString;
+	Client * target;
 
 	tokenize(args, ':', splitargs);
 	message = splitargs[1];
@@ -135,8 +136,21 @@ void Server::privmsg(std::string args, Client *User)
 
 	for (size_t i = 0; i < channels.size(); i++)
     {
-		if (this->channelup.count(channels[i]) > 0 && (this->channelup[channels[i]]->isInChannel(User) > 0 || this->channelup[channels[i]]->getcansendmsghc()))
-			this->sendMessageChannel(message, channels[i], User);
+		if (channels[i].front() == '#')
+		{
+			
+			if (this->channelup.count(channels[i]) > 0 && (this->channelup[channels[i]]->isInChannel(User) > 0 || !this->channelup[channels[i]]->getcansendmsghc()))
+				this->sendMessageChannel(message, channels[i], User);
+		}
+		else
+		{
+			target = this->getClientByName(channels[i]);
+			if (target)
+			{
+				this->sendMessage(target->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PRIVMSG " + target->getnickname() + " :" + message);	
+				this->sendMessage(target->socketFD, message);
+			}
+		}
 	}
 }
 
@@ -221,7 +235,7 @@ void Server::mode(std::string args, Client *User)
 
 void Server::pong(std::string args, Client *User)
 {
-	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PING ft_irc " + args);	
+	this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PING ft_irc " + args);
 }
 
 void Server::names(std::string args, Client *User)
@@ -247,7 +261,7 @@ void Server::kick(std::string args, Client *User)
 		if (i + 1 != splitargs.size())
 			message += " ";
 	}	
-	Client * target = this->channelup[splitargs[0]]->getClientByName(splitargs[1]);
+	Client * target = this->channelup[splitargs[0]]->getClientByNameInChannel(splitargs[1]);
 	if (target && this->channelup[splitargs[0]]->isModo(User))
 	{
 		if (message.empty())
@@ -258,5 +272,4 @@ void Server::kick(std::string args, Client *User)
 		}
 		this->leaveChannel(splitargs[0], target);
 	}
-
 }

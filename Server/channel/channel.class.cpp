@@ -58,7 +58,7 @@ std::string channel::getClientNames(void)
 	return (namesCompile);
 }
 
-Client * 		channel::getClientByName(std::string name)
+Client * 		channel::getClientByNameInChannel(std::string name)
 {
 	for (channelIt it = this->_connectedClient.begin(); it != this->_connectedClient.end(); it++)
 	{
