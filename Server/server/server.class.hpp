@@ -63,6 +63,7 @@ class Server
         void names(std::string args, Client *User);
 		void kick(std::string args, Client *User);
 		void kill(std::string args, Client *User);
+		void topic(std::string args, Client *User);
 		
 };
 
