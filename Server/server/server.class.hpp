@@ -34,6 +34,7 @@ class Server
         ~Server(void);
         
 		void sendMessage(int fd, std::string msg);
+        void sendNoticeChannel(std::string message, std::string channel, Client * user);
         void catchClient(void); 
 		void disconnectClient(int fd); 
         void runningServer(void);
@@ -63,6 +64,7 @@ class Server
         void names(std::string args, Client *User);
 		void kick(std::string args, Client *User);
 		void kill(std::string args, Client *User);
+        void notice(std::string args, Client *User);
 		
 };
 

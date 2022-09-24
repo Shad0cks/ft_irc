@@ -1,6 +1,6 @@
 #include "../includes.hpp"
 #include <errno.h>
-
+#define RED "\e[0;31m"
 
 void Server::pass(std::string args, Client *User)
 {
@@ -163,6 +163,39 @@ void Server::privmsg(std::string args, Client *User)
 			if (target)
 			{
 				this->sendMessage(target->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PRIVMSG " + target->getnickname() + " :" + message);	
+				this->sendMessage(target->socketFD, message);
+			}
+		}
+	}
+}
+
+void Server::notice(std::string args, Client *User)
+{
+	std::vector<std::string> splitargs;
+	std::vector<std::string> channels;
+	std::string message;
+	std::string channelsString;
+	Client * target;
+
+	tokenize(args, ':', splitargs);
+	message = splitargs[1];
+	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
+	tokenize(splitargs[0], ',', channels);
+
+	for (size_t i = 0; i < channels.size(); i++)
+    {
+		if (channels[i].front() == '#')
+		{
+			
+			if (this->channelup.count(channels[i]) > 0 && (this->channelup[channels[i]]->isInChannel(User) > 0 || !this->channelup[channels[i]]->getcansendmsghc()))
+				this->sendNoticeChannel(message, channels[i], User);
+		}
+		else
+		{
+			target = this->getClientByName(channels[i]);
+			if (target)
+			{
+				this->sendMessage(target->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " NOTICE " + target->getnickname() + " :" + message);	
 				this->sendMessage(target->socketFD, message);
 			}
 		}
