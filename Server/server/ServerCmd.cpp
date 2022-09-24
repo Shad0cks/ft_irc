@@ -341,3 +341,28 @@ void Server::kick(std::string args, Client *User)
 		this->leaveChannel(splitargs[0], target);
 	}
 }
+
+
+void Server::kill(std::string args, Client *User)
+{
+	std::string message;
+	std::vector<std::string> splitargs;
+    tokenize(args, ' ', splitargs);
+	for (size_t i = 1; i < splitargs.size(); i++)
+	{
+		message += splitargs[i];
+		if (i + 1 != splitargs.size())
+			message += " ";
+	}
+	Client * target = this->getClientByName(splitargs[0]);
+	if (target && User->getoperator())
+	{
+		if (message.empty())
+			message = ":bye kill one";
+		for (clientIt it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)
+		{
+			this->sendMessage(it->first, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " KILL " + splitargs[0] + " " + target->getnickname() + " " + message);	
+		}
+		this->quit("QUIT :Client kicked by " + User->getnickname(), target);
+	}
+}

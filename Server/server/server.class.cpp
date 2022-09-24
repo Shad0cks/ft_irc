@@ -89,7 +89,6 @@ void Server::disconnectClient(int fd)
 { 
 
 	if (this->connectedClient[fd]->isLog)
-		std::cout << "Host disconnected , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
 		std::cout << "Host disconnected : " << this->connectedClient[fd]->getnickname() << " , socket fd is "<< fd << ", ip is : " << inet_ntoa(this->connectedClient[fd]->clientAddr.sin_addr) << " , port : " << ntohs(this->serverAddr.sin_port)<< std::endl;
 	delete this->connectedClient[fd];
 	this->connectedClient.erase(fd);
@@ -217,7 +216,8 @@ std::string Server::comp[] =
         "MODE",
         "PONG",
         "NAMES",
-		"KICK"
+		"KICK",
+		"KILL"
 };
 
 void    Server::switchcommande(std::string message, Client *User)
@@ -244,9 +244,10 @@ void    Server::switchcommande(std::string message, Client *User)
             &Server::mode,
 			&Server::pong,
             &Server::names,
-			&Server::kick
+			&Server::kick,
+			&Server::kill,
 	};
-    for(int i = 0; i < 12; i++)
+    for(int i = 0; i < 13; i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])

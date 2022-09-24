@@ -62,6 +62,7 @@ class Server
 		void pong(std::string args, Client *User);
         void names(std::string args, Client *User);
 		void kick(std::string args, Client *User);
+		void kill(std::string args, Client *User);
 		
 };
 
