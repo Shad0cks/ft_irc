@@ -399,3 +399,18 @@ void Server::kill(std::string args, Client *User)
 		this->quit("QUIT :Client kicked by " + User->getnickname(), target);
 	}
 }
+
+void Server::topic(std::string args, Client *User)
+{
+	//TOPIC #hey :salut a tous
+	//sent : :pdeshaye!pdeshaye@127.0.0.1 TOPIC #hey :salut a tous
+
+	std::vector<std::string> splitargs;
+    tokenize(args, ':', splitargs);
+	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
+	for (std::map<int, Client *>::iterator it = this->channelup[splitargs[0]]->_connectedClient.begin(); it != this->channelup[splitargs[0]]->_connectedClient.end(); it++)
+	{
+		this->sendMessage(it->first, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " TOPIC " + splitargs[0] + " :" + splitargs[1]);	
+	}
+	this->channelup[splitargs[0]]->WelcomeMessage = splitargs[1];
+}

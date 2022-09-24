@@ -218,7 +218,8 @@ std::string Server::comp[] =
         "NAMES",
 		"KICK",
 		"KILL",
-        "NOTICE"
+        "NOTICE",
+		"TOPIC"
 };
 
 void    Server::switchcommande(std::string message, Client *User)
@@ -247,9 +248,10 @@ void    Server::switchcommande(std::string message, Client *User)
             &Server::names,
 			&Server::kick,
 			&Server::kill,
-            &Server::notice
+            &Server::notice,
+			&Server::topic
 	};
-    for(int i = 0; i < 14; i++)
+    for(int i = 0; i < 15; i++)
     {
         void (Server::*commands)(std::string args, Client *User) = fonction[i];
         if (commande == this->comp[i])
@@ -319,6 +321,8 @@ void Server::joinChannel(std::string name, Client * user, std::string mod)
 	{
 		this->sendMessage(it->second->socketFD, ":" + user->getnickname() + "!" + user->getnickname() + "@" + inet_ntoa(user->clientAddr.sin_addr) + " JOIN " + name);	
 	}
+	if (!this->channelup[name]->WelcomeMessage.empty())
+		this->sendMessage(user->socketFD, "332 " + user->getnickname() + " " + name + " :" + this->channelup[name]->WelcomeMessage);
     this->sendMessage(user->socketFD, "324 " + user->getnickname() + " " + name + " " + mod);
     this->sendMessage(user->socketFD, "353 " + user->getnickname() + " " + name + " :" + this->channelup[name]->getClientNames());
     this->sendMessage(user->socketFD, "366 " + user->getnickname() + " " + name + " :End of NAMES list");

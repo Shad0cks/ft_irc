@@ -24,6 +24,7 @@ class channel
         std::map<int, Client *>                         _connectedClient;
         virtual ~channel(void);
 
+		std::string	WelcomeMessage;
         std::string const getchannelname(void)      {return(this->_channelname);}
         bool        getcankick(void)                {return(this->_cankick);}
         bool        getcansendmsghc(void)           {return(this->_cansendmsghc);} 

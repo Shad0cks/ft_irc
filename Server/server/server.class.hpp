@@ -65,6 +65,7 @@ class Server
 		void kick(std::string args, Client *User);
 		void kill(std::string args, Client *User);
         void notice(std::string args, Client *User);
+		void topic(std::string args, Client *User);
 		
 };
 
