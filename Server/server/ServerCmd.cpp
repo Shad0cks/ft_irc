@@ -181,7 +181,11 @@ void Server::notice(std::string args, Client *User)
 	message = splitargs[1];
 	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
 	tokenize(splitargs[0], ',', channels);
-
+	if (this->channelup.count(splitargs[0]) == 0)
+	{
+		this->sendMessage(User->socketFD, "403 " + User->getnickname() + " " + args + ":No such channel");
+		return;
+	}
 	for (size_t i = 0; i < channels.size(); i++)
     {
 		if (channels[i].front() == '#')
@@ -210,6 +214,11 @@ void Server::mode(std::string args, Client *User)
 	Client *target;
 	if (splitargs[0].front() == '#')
 	{
+		if (this->channelup.count(splitargs[0]) == 0)
+		{
+			this->sendMessage(User->socketFD, "403 " + User->getnickname() + " " + args + ":No such channel");
+			return;
+		}
 		if (splitargs.size() == 1)
 			return;
 		if(splitargs[1][0] == '+' && splitargs.size() != 1)
@@ -242,6 +251,7 @@ void Server::mode(std::string args, Client *User)
 							{
 								if (std::stoi(splitargs[3]) > 0)
 								{
+									// std::cout << "Sizeqweqweqweqw: " <<  "\n";
 									this->channelup[splitargs[0]]->setlimituser(true);
 									this->channelup[splitargs[0]]->setlimite(std::stoi(splitargs[3]));
 								}
@@ -253,8 +263,11 @@ void Server::mode(std::string args, Client *User)
 					{
 						target = getClientByName(splitargs[3]);
 						if (target)
-						{
 							this->channelup[splitargs[0]]->newuserp(target);
+						else
+						{
+							this->sendMessage(User->socketFD, "401 " + User->getnickname() + " " + args + ":No such nickname");
+							return;
 						}
 					}
 					else
@@ -271,9 +284,7 @@ void Server::mode(std::string args, Client *User)
 				for (int i = 0; i < splitargs[2].size(); i++)
 				{
 					if (splitargs[2][i] == 'n')
-					{
 						this->channelup[splitargs[0]]->setcansendmsghc(false);
-					}
 					else if (splitargs[2][i] == 'Q')
 						this->channelup[splitargs[0]]->setcankick(false);
 					else if (splitargs[2][i] == 'k')
@@ -284,8 +295,11 @@ void Server::mode(std::string args, Client *User)
 					{
 						target = getClientByName(splitargs[3]);
 						if (target)
-						{
 							this->channelup[splitargs[0]]->eraseop(target);
+						else
+						{
+							this->sendMessage(User->socketFD, "401 " + User->getnickname() + " " + args + ":No such nickname");
+							return;
 						}
 					}
 					else
@@ -298,6 +312,12 @@ void Server::mode(std::string args, Client *User)
 	}
 	else
 	{
+		target = getClientByName(splitargs[0]);
+		if (!target)
+		{
+			this->sendMessage(User->socketFD, "401 " + User->getnickname() + " " + args + ":No such nickname");
+			return;
+		}
 		if (splitargs.size() == 1)
 			return;
 		else if (splitargs.size() == 2)
@@ -308,9 +328,7 @@ void Server::mode(std::string args, Client *User)
 			{
 				if (splitargs[2][i] == 'o')
 				{
-					target = getClientByName(splitargs[0]);
-					if (target)
-						target->setoperator(true);
+					target->setoperator(true);
 				}
 			}
 		}
@@ -319,15 +337,11 @@ void Server::mode(std::string args, Client *User)
 			for (int i = 0; i < splitargs[2].size(); i++)
 			{
 				if (splitargs[2][i] == 'o')
-				{
-					target = getClientByName(splitargs[0]);
-					if (target)
-						target->setoperator(false);
-				}
+					target->setoperator(false);
 			}
 		}
 		else
-			return ;
+			return;
 	}
 }
 
@@ -340,6 +354,11 @@ void Server::names(std::string args, Client *User)
 {
 	args.erase(remove_if(args.begin(), args.end(), isspace));
 	std::string buffer;
+	if (this->channelup.count(args) == 0)
+	{
+		this->sendMessage(User->socketFD, "366 " + User->getnickname() + " " + args + " :End of NAMES list");
+		return;
+	}
 	for (std::map<int, Client *>::iterator it = this->channelup[args]->_connectedClient.begin(); it != this->channelup[args]->_connectedClient.end(); it++)
 	{
 		if (this->channelup[args]->isModo(it->second))
@@ -363,7 +382,12 @@ void Server::kick(std::string args, Client *User)
 			message += " ";
 	}	
 	Client * target = this->channelup[splitargs[0]]->getClientByNameInChannel(splitargs[1]);
-	if (target && this->channelup[splitargs[0]]->isModo(User))
+	if (!target)
+	{
+		this->sendMessage(User->socketFD, "401 " + User->getnickname() + " " + args + ":No such nickname");
+		return;
+	}
+	if (this->channelup[splitargs[0]]->isModo(User))
 	{
 		if (message.empty())
 			message = ":bye kicked one";
@@ -388,7 +412,12 @@ void Server::kill(std::string args, Client *User)
 			message += " ";
 	}
 	Client * target = this->getClientByName(splitargs[0]);
-	if (target && User->getoperator())
+	if (!target)
+	{
+		this->sendMessage(User->socketFD, "401 " + User->getnickname() + " " + args + ":No such nickname");
+		return;
+	}
+	if (User->getoperator())
 	{
 		if (message.empty())
 			message = ":bye kill one";
@@ -404,10 +433,14 @@ void Server::topic(std::string args, Client *User)
 {
 	//TOPIC #hey :salut a tous
 	//sent : :pdeshaye!pdeshaye@127.0.0.1 TOPIC #hey :salut a tous
-
 	std::vector<std::string> splitargs;
     tokenize(args, ':', splitargs);
 	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
+	if (this->channelup.count(splitargs[0]) == 0)
+	{
+		this->sendMessage(User->socketFD, "403 " + User->getnickname() + " " + args + ":No such channel");
+		return;
+	}
 	for (std::map<int, Client *>::iterator it = this->channelup[splitargs[0]]->_connectedClient.begin(); it != this->channelup[splitargs[0]]->_connectedClient.end(); it++)
 	{
 		this->sendMessage(it->first, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " TOPIC " + splitargs[0] + " :" + splitargs[1]);	

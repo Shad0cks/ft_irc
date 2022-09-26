@@ -8,6 +8,7 @@ Client::Client(void)
 	this->setUser = false;
 	this->setNick = false;
 	this->setPass = false;
+	this->_operator = false;
 }
 Client::~Client(void)
 {
