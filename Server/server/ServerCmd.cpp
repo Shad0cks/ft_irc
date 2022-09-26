@@ -17,6 +17,11 @@ void Server::pass(std::string args, Client *User)
 
 void Server::nick(std::string args, Client *User)
 {
+	std::size_t found = args.find('#');
+	std::size_t found2 = args.find('@');
+	if (found != std::string::npos || found2 != std::string::npos)
+		return;
+
 	if (User->isLog)
 		this->sendMessage(User->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " NICK :" + args);	
 	if (!User->setPass)
@@ -25,7 +30,6 @@ void Server::nick(std::string args, Client *User)
 	if (User->setUser && !User->isLog)
 		this->clientLog(User->socketFD);
 	User->setnickname(args);
-	std::cout << "nick : " << args << std::endl;
 }
 
 void Server::user(std::string args, Client *User)
@@ -41,7 +45,6 @@ void Server::user(std::string args, Client *User)
 	User->setusername(args);
 	if (User->setNick)
 		this->clientLog(User->socketFD);
-	std::cout << "user : " << args << std::endl;
 }
 
 void Server::join (std::string args, Client *User)
@@ -59,7 +62,10 @@ void Server::join (std::string args, Client *User)
 	for (std::vector<std::string>::iterator it = splitargs.begin(); it != splitargs.end(); it++)
 	{
 		if (it->front() != '#' || it->size() <= 1)
+		{
+			this->sendMessage(User->socketFD, "403 " + User->getnickname() + " " + args + ":No such channel");
 			continue;
+		}
 		if (this->channelup.count(*it) == 0)
 		{
 			//create channel
@@ -113,12 +119,11 @@ void Server::quit(std::string args, Client *User)
 		message += splitargs[i];
 		if (i + 1 != splitargs.size())
 			message += " ";
-	}	
+	}
 	if (message.empty())
 		message = ": bye";
 	for (clientIt it = this->connectedClient.begin(); it != this->connectedClient.end(); it++)
 		this->sendMessage(it->first, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " QUIT " + User->getnickname() + ": " + message);	
-	//	this->leaveChannel(splitargs[0], target);
 	this->disconnectClient(User->socketFD);
 }
 
@@ -133,6 +138,11 @@ void Server::part(std::string args, Client *User)
 
     tokenize(args, ':', splitargs);
 	splitargs[0].erase(remove_if(splitargs[0].begin(), splitargs[0].end(), isspace));
+	if (this->channelup.count(splitargs[0]) == 0)
+	{
+		this->sendMessage(User->socketFD, "403 " + User->getnickname() + " " + args + ":No such channel");
+		return;
+	}
 	this->leaveChannel(splitargs[0], User);
 }
 
@@ -153,9 +163,13 @@ void Server::privmsg(std::string args, Client *User)
     {
 		if (channels[i].front() == '#')
 		{
-			
-			if (this->channelup.count(channels[i]) > 0 && (this->channelup[channels[i]]->isInChannel(User) > 0 || !this->channelup[channels[i]]->getcansendmsghc()))
-				this->sendMessageChannel(message, channels[i], User);
+			if (this->channelup.count(channels[i]) == 1)
+			{
+				if (this->channelup[channels[i]]->isInChannel(User) > 0 || !this->channelup[channels[i]]->getcansendmsghc())
+					this->sendMessageChannel(message, channels[i], User);
+			}
+			else
+				this->sendMessage(User->socketFD, "403 " + User->getnickname() + " " + args + ":No such channel");
 		}
 		else
 		{
@@ -165,6 +179,8 @@ void Server::privmsg(std::string args, Client *User)
 				this->sendMessage(target->socketFD, ":" + User->getnickname() + "!" + User->getnickname() + "@" + inet_ntoa(User->clientAddr.sin_addr) + " PRIVMSG " + target->getnickname() + " :" + message);	
 				this->sendMessage(target->socketFD, message);
 			}
+			else
+				this->sendMessage(User->socketFD, "401 " + User->getnickname() + " " + args + ":No such nickname");
 		}
 	}
 }

@@ -261,7 +261,7 @@ void    Server::switchcommande(std::string message, Client *User)
         }
     }
     if (!check)
-        std::cout << "421 " << User->getnickname() << " " << commande << " :Unknown command" << std::endl;
+		this->sendMessage(User->socketFD, "421 " + User->getnickname() + " " + commande + " :Unknown command");
 }
 
 std::string Server::retcommande(std::string message)
